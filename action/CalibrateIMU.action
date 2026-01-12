@@ -1,0 +1,11 @@
+# Goal
+bool start   # true -> start calibration, false -> cancel/stop
+
+---
+# Result
+bool success
+string message
+
+---
+# Feedback
+string state    # e.g. "idle", "collecting", "computing", "done"
