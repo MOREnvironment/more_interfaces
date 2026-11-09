@@ -1,0 +1,8 @@
+# External-control family: follow the line from start to end (WGS-84, degrees; altitude ignored) at speed, m/s.
+# Refresh: as for SetCourseSpeed.
+geographic_msgs/GeoPoint start
+geographic_msgs/GeoPoint end
+float64 speed
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

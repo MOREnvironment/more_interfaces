@@ -1,0 +1,10 @@
+# Send a text message. The answer says whether it was queued; the progress is published as TxStatus with request_id.
+# The medium has its own size limit (the acoustic medium's single packet is 54 bytes); a longer text is refused as
+# invalid, never cut.
+string recipient
+string text
+uint8 medium            # TextMessage MEDIUM_ constant
+more_interfaces/CommandAuth auth
+---
+uint32 request_id
+more_interfaces/CommandResult result

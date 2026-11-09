@@ -19,8 +19,10 @@ The goal is not to duplicate existing ROS 2 interfaces for poses, paths, routes,
 - [4. Use the package](#4-use-the-package)
   - [4.1. Check the interfaces](#41-check-the-interfaces)
   - [4.2. Using the messages in your own code](#42-using-the-messages-in-your-own-code)
-- [5. Planned maritime-specific interfaces](#5-planned-maritime-specific-interfaces)
-- [6. Existing ROS 2 interfaces](#6-existing-ros-2-interfaces)
+- [5. The vehicle contract](#5-the-vehicle-contract)
+- [6. Build and test in Docker](#6-build-and-test-in-docker)
+- [7. Planned maritime-specific interfaces](#7-planned-maritime-specific-interfaces)
+- [8. Existing ROS 2 interfaces](#8-existing-ros-2-interfaces)
 - [📝 Credits](#-credits)
 
 ## 1. Repository structure
@@ -34,7 +36,8 @@ more_interfaces/
 ├── msg/        # Maritime-specific message definitions 
 ├── srv/        # Maritime-specific service definitions 
 └── action/     # Maritime-specific action definitions 
-└── ...
+└── docker/     # build and test environment (ROS 2 Lyrical)
+└── test/       # round-trip tests of every message and service
 ```
 
 ## 2. Prerequisites
@@ -178,7 +181,37 @@ Then include the header:
 ```
 
 
-## 5. Planned maritime-specific interfaces
+## 5. The vehicle contract
+
+A vehicle, real or simulated, is described to its clients by one contract under `/<vehicle>/`: standard ROS types where one fits and the
+interfaces below where none does. Plans are geodetic (WGS-84, degrees), states are metres about the run's fixed datum, a value that is not
+available is NaN, and every commanding request carries a `CommandAuth` block.
+
+| Group | Interfaces |
+|---|---|
+| Navigation and status | `WaterColumn`, `VehicleMode`, `PartState`, `PartStateArray`, `Limits`, `AbortEvent` |
+| Plan family | `Maneuver`, `PartAction`, `Setting`, `PlanTransition`, `PlanState`, `PlanSummary`, `PlanList`; services `StorePlan`, `StartPlan`, `StopPlan`, `QueryPlan` |
+| External-control family | services `SetCourseSpeed`, `SetLeg`, `SetStation`, `SetStationRadii` |
+| Payloads and sensors | `PayloadState`, `RangeInterval`, `SwathFootprint`, `SonarInfo`; service `SetPayload` |
+| Communication and acoustics | `TextMessage`, `TxStatus`, `AcousticLinkEvent`, `UsblFix`; service `SendText` |
+| Commands | `CommandAuth`, `CommandResult`; service `Abort` |
+| Host monitoring | `RuntimeStats`, `ConsumerLatency`, `SyncAck` |
+
+The contract itself (the table of names, types, QoS, minimum rates and frames, a checker for a live topic and service list, command
+authentication and a conformance suite that any host can be run against) is the package `vehicle_contract`, in its own repository; it builds
+against this one.
+
+## 6. Build and test in Docker
+
+```bash
+docker/run.sh build      # the image (ROS 2 Lyrical, pinned by digest)
+docker/run.sh test       # colcon build, then the tests: every message and service round-trips through the serialisation
+```
+
+The build and the tests were run on ROS 2 Lyrical Luth; the interfaces use only standard types, so Jazzy builds them as well, but that is not tested.
+The source is mounted read-only and built into a cache folder (`CACHE_DIR`, default `~/.cache/more_interfaces_build`); nothing is installed on the host.
+
+## 7. Planned maritime-specific interfaces
 
 Over time, this package is intended to collect interfaces that are not covered
 by existing ROS 2 packages, in particular:
@@ -204,7 +237,7 @@ by existing ROS 2 packages, in particular:
   - High-level vessel / AUV state focused on maritime modes and constraints
   - Fleet-level task / mission status for cooperating vehicles
 
-## 6. Existing ROS 2 interfaces 
+## 8. Existing ROS 2 interfaces 
 
 > **This package is designed to extend functionality of existing ROS2 interfaces, not to rewrite the existing standard interfaces. If message, service or action exists you should use it!**
 

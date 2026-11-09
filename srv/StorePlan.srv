@@ -1,0 +1,19 @@
+# Keep a plan on the vehicle under plan_id. Acknowledged like the vehicle's own plan store.
+# Frames: see Maneuver (positions WGS-84, geodetic).
+
+string plan_id
+
+# The manoeuvres, each with a maneuver_id when transitions name it.
+more_interfaces/Maneuver[] maneuvers
+
+# The destination starts when the source is done. Empty: the manoeuvres run in the order given.
+more_interfaces/PlanTransition[] transitions
+
+# Manoeuvre to start from. Empty: the first.
+string start_maneuver_id
+
+more_interfaces/CommandAuth auth
+---
+# `reason` names the manoeuvre or the field when the plan is invalid.
+string plan_id
+more_interfaces/CommandResult result

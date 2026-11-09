@@ -1,0 +1,6 @@
+# Ask what the vehicle knows of a plan. Read-only: no authentication block.
+string plan_id
+---
+bool stored
+string[] maneuver_ids
+bool running

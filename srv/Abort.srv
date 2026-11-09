@@ -1,0 +1,8 @@
+# Stop now. Accepted from the client that holds control, with a new sequence number; other operators abort through
+# their own tool.
+# `source` is a label the sender chooses; it comes back in the AbortEvent.
+string source
+string reason
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

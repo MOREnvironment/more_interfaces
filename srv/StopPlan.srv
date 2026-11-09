@@ -1,0 +1,5 @@
+# Stop the running plan; with a plan_id, only if that is the plan that runs (any other id is refused as invalid and the plan continues).
+string plan_id
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

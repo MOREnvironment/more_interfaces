@@ -1,0 +1,7 @@
+# Switch a payload on or off with settings. Also usable as the action of a manoeuvre (see PartAction).
+string name
+bool active
+more_interfaces/Setting[] settings
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

@@ -1,0 +1,6 @@
+# External-control family: the radii of the station-keeping circles, m. NaN: unchanged.
+float64 inner_radius
+float64 outer_radius
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

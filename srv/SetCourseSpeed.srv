@@ -1,0 +1,9 @@
+# External-control family: hold a course and a speed.
+# Frame and units: course in rad from true north, clockwise; speed in m/s over ground.
+# Refresh: the order holds only while it is repeated within the host's watchdog period; after that the host releases
+# the vehicle.
+float64 course
+float64 speed
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result

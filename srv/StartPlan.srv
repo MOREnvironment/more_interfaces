@@ -1,0 +1,20 @@
+# Start a plan. It REPLACES the plan that runs; any client may start a stored plan.
+# With maneuvers: the plan is these manoeuvres in the order given, and plan_id only labels it.
+# Without: the stored plan plan_id.
+
+more_interfaces/Maneuver[] maneuvers
+string plan_id
+
+# Manoeuvre to start from. Empty: the plan's first.
+string start_maneuver_id
+
+# Run a calibration of calibration_time seconds before the first manoeuvre.
+bool calibrate
+float64 calibration_time
+
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result
+
+# The plan that was replaced. Empty: none was running.
+string previous_plan_id

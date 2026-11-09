@@ -1,0 +1,7 @@
+# External-control family: keep station at a point (WGS-84, degrees; altitude ignored); speed in m/s.
+# Refresh: as for SetCourseSpeed.
+geographic_msgs/GeoPoint position
+float64 speed
+more_interfaces/CommandAuth auth
+---
+more_interfaces/CommandResult result
