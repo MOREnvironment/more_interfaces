@@ -192,7 +192,7 @@ available is NaN, and every commanding request carries a `CommandAuth` block.
 | Navigation and status | `WaterColumn`, `VehicleMode`, `PartState`, `PartStateArray`, `Limits`, `AbortEvent` |
 | Plan family | `Maneuver`, `PartAction`, `Setting`, `PlanTransition`, `PlanState`, `PlanSummary`, `PlanList`; services `StorePlan`, `StartPlan`, `StopPlan`, `QueryPlan` |
 | External-control family | services `SetCourseSpeed`, `SetLeg`, `SetStation`, `SetStationRadii` |
-| Payloads and sensors | `PayloadState`, `RangeInterval`, `SwathFootprint`, `SonarInfo`; service `SetPayload` |
+| Payloads and sensors | `PayloadState`, `RangeInterval`, `RangeMeasurement`, `SwathFootprint`, `SonarInfo`; service `SetPayload` |
 | Communication and acoustics | `TextMessage`, `TxStatus`, `AcousticLinkEvent`, `UsblFix`; service `SendText` |
 | Commands | `CommandAuth`, `CommandResult`; service `Abort` |
 | Host monitoring | `RuntimeStats`, `ConsumerLatency`, `SyncAck` |

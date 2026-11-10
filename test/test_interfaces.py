@@ -30,7 +30,7 @@ def test_every_interface_file_resolves():
     for t in ALL_TYPES:
         if "/action/" not in t:
             assert resolve(t) is not None, t
-    assert len(ALL_TYPES) >= 43
+    assert len(ALL_TYPES) >= 44
 
 
 # -- round trip ------------------------------------------------------------------------------------------------------------------
@@ -95,6 +95,27 @@ def test_round_trip_keeps_nan_and_infinity():
     m.position.altitude = math.nan
     back = deserialize_message(serialize_message(m), type(m))
     assert math.isnan(back.start_z) and math.isinf(back.duration) and math.isinf(back.timeout) and math.isnan(back.position.altitude)
+
+
+
+def test_range_measurement_keeps_validity_pose_beam_and_range():
+    cls = get_message("more_interfaces/msg/RangeMeasurement")
+    m = cls()
+    m.header.frame_id = m.frame_id = "sonar_link"
+    m.validity = 1
+    m.pose.position.x, m.pose.orientation.w = 1.5, 1.0
+    m.beam_width, m.beam_height, m.range = 0.5, 0.25, 12.5
+    back = deserialize_message(serialize_message(m), cls)
+    assert (back.frame_id, back.validity, back.range, back.beam_width, back.beam_height) == ("sonar_link", 1, 12.5, 0.5, 0.25)
+    assert back.pose.position.x == 1.5 and back.pose.orientation.w == 1.0
+
+
+def test_water_column_altitude_nan_means_no_measurement():
+    cls = get_message("more_interfaces/msg/WaterColumn")
+    m = cls()
+    m.depth, m.altitude = 20.0, math.nan
+    back = deserialize_message(serialize_message(m), cls)
+    assert back.depth == 20.0 and math.isnan(back.altitude)
 
 
 # -- names and comments ------------------------------------------------------------------------------------------------------------

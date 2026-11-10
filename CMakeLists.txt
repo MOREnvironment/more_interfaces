@@ -34,6 +34,7 @@ set(msg_files
   "msg/PlanSummary.msg"
   "msg/PlanTransition.msg"
   "msg/QuaternionNed.msg"
+  "msg/RangeMeasurement.msg"
   "msg/RangeInterval.msg"
   "msg/RuntimeStats.msg"
   "msg/Setting.msg"
