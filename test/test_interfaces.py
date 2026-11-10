@@ -101,13 +101,29 @@ def test_round_trip_keeps_nan_and_infinity():
 def test_range_measurement_keeps_validity_pose_beam_and_range():
     cls = get_message("more_interfaces/msg/RangeMeasurement")
     m = cls()
-    m.header.frame_id = m.frame_id = "sonar_link"
+    m.header.frame_id = "sonar_link"
+    m.target_id = "7"
     m.validity = 1
     m.pose.position.x, m.pose.orientation.w = 1.5, 1.0
     m.beam_width, m.beam_height, m.range = 0.5, 0.25, 12.5
     back = deserialize_message(serialize_message(m), cls)
-    assert (back.frame_id, back.validity, back.range, back.beam_width, back.beam_height) == ("sonar_link", 1, 12.5, 0.5, 0.25)
+    assert (back.header.frame_id, back.target_id, back.validity, back.range, back.beam_width, back.beam_height) == \
+        ("sonar_link", "7", 1, 12.5, 0.5, 0.25)
     assert back.pose.position.x == 1.5 and back.pose.orientation.w == 1.0
+
+
+def test_range_measurement_has_one_frame_field_and_an_identifier_field():
+    # The frame is header.frame_id only; what the range was measured to is an identifier, not a frame.
+    fields = get_message("more_interfaces/msg/RangeMeasurement").get_fields_and_field_types()
+    assert "frame_id" not in fields and fields["target_id"] == "string"
+
+
+def test_range_measurement_beam_nan_means_not_reported():
+    cls = get_message("more_interfaces/msg/RangeMeasurement")
+    m = cls()
+    m.beam_width = m.beam_height = math.nan
+    back = deserialize_message(serialize_message(m), cls)
+    assert math.isnan(back.beam_width) and math.isnan(back.beam_height)
 
 
 def test_water_column_altitude_nan_means_no_measurement():
