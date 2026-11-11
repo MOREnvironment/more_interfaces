@@ -126,6 +126,17 @@ def test_range_measurement_beam_nan_means_not_reported():
     assert math.isnan(back.beam_width) and math.isnan(back.beam_height)
 
 
+def test_range_measurement_validity_has_three_values():
+    # 0 invalid, 1 valid, 2 not reported: an input without validity is not made valid or invalid.
+    cls = get_message("more_interfaces/msg/RangeMeasurement")
+    assert (cls.VALIDITY_INVALID, cls.VALIDITY_VALID, cls.VALIDITY_NOT_REPORTED) == (0, 1, 2)
+    m = cls()
+    m.validity = cls.VALIDITY_NOT_REPORTED
+    m.range = 120.0
+    back = deserialize_message(serialize_message(m), cls)
+    assert back.validity == cls.VALIDITY_NOT_REPORTED and back.range == 120.0
+
+
 def test_water_column_altitude_nan_means_no_measurement():
     cls = get_message("more_interfaces/msg/WaterColumn")
     m = cls()

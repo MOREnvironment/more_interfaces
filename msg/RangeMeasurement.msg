@@ -9,8 +9,11 @@ std_msgs/Header header
 # identified target (an echo sounder, an altimeter).
 string target_id
 
-# Validity: 0 = invalid, 1 = valid. Copied from the sensor or protocol when it reports validity; a source that reports none
-# is documented by the publisher with the rule it applies.
+# Validity of the range. Copied from the sensor or protocol when it reports validity. When the input carries no validity at
+# all, the publisher sets VALIDITY_NOT_REPORTED: neither valid nor invalid is claimed, and the range is published as given.
+uint8 VALIDITY_INVALID=0
+uint8 VALIDITY_VALID=1
+uint8 VALIDITY_NOT_REPORTED=2
 uint8 validity
 
 # Sensor pose in header.frame_id: position in m, orientation as a unit quaternion.
