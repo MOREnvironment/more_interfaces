@@ -43,7 +43,7 @@ Generated from: more_generic_models 0.1.0, develop at commit 29c46184 (before th
 ## NaN and inf defaults are not representable
 
 rosidl (jazzy) reads a `.msg` default with `ast.literal_eval`: a default `nan` or `inf` makes the C++ and Python generators fail. Such fields get
-no default (an unset field is 0) and a comment; `doc/unrepresentable_defaults.txt` lists them (63). A sender that means "unchanged" in `SetLimits` or
+no default (an unset field is 0) and a comment; `doc/unrepresentable_defaults.txt` lists them (61). A sender that means "unchanged" in `SetLimits` or
 `SetStationRadii` must set NaN itself.
 
 ## Tests (`colcon test`, or `pytest tests/` with the library installed)
