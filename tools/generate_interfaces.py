@@ -1,0 +1,344 @@
+#!/usr/bin/env python3
+"""Generate the ROS 2 interface files of the vehicle API from the simulation library's order and report classes.
+
+The library (``more_generic_models``) is imported as an installed package; its version is stated in every generated file. The output is
+deterministic: the same classes give the same bytes. ``python tools/generate_interfaces.py`` writes ``msg/``, ``srv/``, ``action/`` and
+``doc/metadata_gaps.txt`` and the stamp ``GENERATED_FROM``; ``--check`` writes nothing and fails when a committed file differs.
+
+Field types: ``float`` -> float64, ``int`` -> int32 / uint32 / int64 (by name, ``INT_TYPES``), ``bool`` -> bool, ``str`` -> string, each with the
+library's default (NaN and inf included). Every other field (arrays, tuples, dicts, nested records, ``object``) is named in ``SPECIAL``; a field of
+a reachable class that is neither a scalar nor in ``SPECIAL`` stops the generator, so a field the library appends later breaks the build, not the run.
+Units and frames are read from the field's ``metadata`` (``unit``, ``frame``) when the library gives them; where it does not, the comment carries the
+marker ``GAP`` and the field is listed in ``doc/metadata_gaps.txt``.
+"""
+from __future__ import annotations
+
+import argparse
+import dataclasses
+import importlib
+import importlib.metadata
+import math
+import re
+import subprocess
+import sys
+import textwrap
+from pathlib import Path
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parent.parent
+PACKAGE = "vehicle_api_interfaces"
+
+# --- the interface's own helper records -------------------------------------------------------------------------------------------------------
+HELPERS = {
+    "KeyValue": ("A name and a number (a setting, a period).", [("string", "key", None, ""), ("float64", "value", None, "")]),
+    "Waypoint": ("One point of a path: north and east in m (NED, about the scenario origin), z in the unit of the manoeuvre's z_mode, speed in m/s.",
+                 [("float64", n, None, "") for n in ("x", "y", "z", "speed")]),
+    "Transition": ("An ordered pair of manoeuvre ids: the destination starts when the source is done.",
+                   [("string", "source", None, ""), ("string", "destination", None, "")]),
+    "PlaneVertex": ("A vertex of a polygon: north and east in m (NED, about the scenario origin).", [("float64", "x", None, ""), ("float64", "y", None, "")]),
+    "LimitBound": ("One operating limit and the bounds within which it can be set (same unit as the limit).",
+                   [("string", "field", None, ""), ("float64", "minimum", None, ""), ("float64", "maximum", None, "")]),
+    "Matrix": ("A matrix, row-major. rows = 0 means there is none (the library's None).",
+               [("uint32", "rows", None, ""), ("uint32", "cols", None, ""), ("float64[]", "data", None, "")]),
+}
+
+# (class, field) -> (ros type, default or None). Everything that is not a plain float / int / bool / str.
+NAN3, NAN6 = "[nan, nan, nan]", "[nan, nan, nan, nan, nan, nan]"
+SPECIAL = {
+    ("EstimatedStateReport", "eta"): ("float64[6]", None), ("EstimatedStateReport", "nu"): ("float64[6]", None),
+    ("EstimatedStateReport", "velocity_ned"): ("float64[3]", NAN3),
+    ("NavigationUncertaintyReport", "covariance"): ("Matrix", None),
+    ("VehicleModeReport", "parts_in_error"): ("string[]", None),
+    ("PathTrackingReport", "leg_start"): ("float64[3]", None), ("PathTrackingReport", "leg_end"): ("float64[3]", None),
+    ("ControlOutputReport", "requested_wrench"): ("float64[6]", None), ("ControlOutputReport", "realized_wrench"): ("float64[6]", None),
+    ("ControlOutputReport", "enabled"): ("bool[6]", None),
+    ("AidingEventReport", "innovation"): ("float64[]", None),
+    ("SensorReadingReport", "values"): ("KeyValue[]", None), ("SensorReadingReport", "covariance"): ("Matrix", None),
+    ("PayloadStateReport", "settings"): ("KeyValue[]", None),
+    ("LimitsReport", "region"): ("PlaneVertex[]", None), ("SetLimits", "region"): ("PlaneVertex[]", None),
+    ("CapabilitiesReport", "orders"): ("string[]", None), ("CapabilitiesReport", "reports"): ("string[]", None),
+    ("CapabilitiesReport", "entry_levels"): ("string[]", None), ("CapabilitiesReport", "periods"): ("KeyValue[]", None),
+    ("CapabilitiesReport", "limits"): ("LimitBound[]", None),
+    ("PlanQueryReply", "maneuver_ids"): ("string[]", None), ("PlanQueryReply", "maneuvers"): ("Maneuver[]", None),
+    ("PlanQueryReply", "transitions"): ("Transition[]", None),
+    ("PlanListReply", "plan_ids"): ("string[]", None), ("PlanListReply", "checksums"): ("string[]", None),
+    ("PartAction", "settings"): ("KeyValue[]", None), ("SetPayload", "settings"): ("KeyValue[]", None),
+    ("FollowPath", "points"): ("Waypoint[]", None),
+    ("StorePlan", "maneuvers"): ("Maneuver[]", None), ("StorePlan", "transitions"): ("Transition[]", None),
+    ("StartPlan", "maneuvers"): ("Maneuver[]", None),
+}
+for _m in ("ManeuverFields",):
+    SPECIAL[(_m, "start_actions")] = ("PartAction[]", None)
+    SPECIAL[(_m, "end_actions")] = ("PartAction[]", None)
+
+INT_TYPES = {"order_id": "uint32", "index": "int32", "count": "int32"}      # any other int field: int64
+FRAME_NOTE = ("Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from north "
+              "clockwise, time in s on the scenario clock.")
+STAMP_FIELDS = (("std_msgs/Header", "header"), ("uint64", "stream_seq"), ("float64", "t"))
+SCALARS = {"float": "float64", "int": "int64", "bool": "bool", "str": "string"}
+NUMERIC = ("float64", "float64[]", "float64[3]", "float64[6]", "Matrix", "KeyValue[]", "LimitBound[]", "PlaneVertex[]", "Waypoint[]")
+MGM_MODULES = ("more_generic_models.vehicle_api.messages", "more_generic_models.vehicle_api.plan_reference.messages",
+               "more_generic_models.vehicle_api.external_control.messages")
+
+_ASCII = {"×": "x", "→": "->", "—": "-", "–": "-", "≤": "<=", "≥": ">=", "π": "pi", "σ": "sigma", "°": " deg", "²": "^2", "·": "*", "≈": "~", "’": "'"}
+
+
+def snake(name: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+
+def ascii_text(s: str) -> str:
+    for k, v in _ASCII.items():
+        s = s.replace(k, v)
+    return s.encode("ascii", "replace").decode()
+
+
+def comment(text: str, indent: str = "") -> list:
+    text = ascii_text(" ".join(text.split()))
+    return [f"{indent}# {ln}" for ln in textwrap.wrap(text, 128 - len(indent))] if text else []
+
+
+def fnum(v: float) -> str:
+    if math.isnan(v):
+        return "nan"
+    if math.isinf(v):
+        return "inf" if v > 0 else "-inf"
+    return repr(float(v))
+
+
+# --- reading the library -----------------------------------------------------------------------------------------------------------------------
+def load_library():
+    mods = [importlib.import_module(m) for m in MGM_MODULES]
+    base = importlib.import_module("more_generic_models.vehicle_api.base")
+    plan = importlib.import_module("more_generic_models.vehicle_api.plan_reference.base")
+    surf = importlib.import_module("more_generic_models.vehicle_api.external_control.base")
+    return mods, base, plan, surf
+
+
+def find_class(mods, name):
+    for m in mods:
+        c = getattr(m, name, None)
+        if dataclasses.is_dataclass(c):
+            return c
+    raise KeyError(f"no dataclass {name!r} in {[m.__name__ for m in mods]}")
+
+
+def library_version() -> str:
+    return importlib.metadata.version("more_generic_models")
+
+
+def library_commit() -> str:
+    """The commit of the checkout the installed (editable) library is read from, or ``unknown`` for a plain install."""
+    try:
+        d = Path(importlib.import_module("more_generic_models").__file__).resolve().parent
+        out = subprocess.run(["git", "-C", str(d), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "-C", str(d), "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True).stdout.strip()
+        return out + (" (modified tree)" if dirty else "")
+    except Exception:       # noqa: BLE001
+        return "unknown"
+
+
+def collect(mods, base, plan, surf):
+    orders = {}
+    for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):
+        orders.update(api.ORDERS)
+    for c in base.CATEGORY_ORDERS:
+        orders[c.__name__] = c
+    report_names = set()
+    for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):
+        report_names.update(api.REPORT_TYPES)
+    reports = {n: find_class(mods, n) for n in sorted(report_names)}
+    maneuvers = {c.__name__: c for c in plan.messages.MANEUVERS}
+    return dict(sorted(orders.items())), reports, dict(sorted(maneuvers.items()))
+
+
+# --- field mapping -----------------------------------------------------------------------------------------------------------------------------
+class Gaps(list):
+    pass
+
+
+def field_lines(cls, gaps, skip=("t",), owner=None):
+    owner_name = owner or cls.__name__
+    """(ros type, name, default text, comment) per field of ``cls``; ``owner`` names the msg for the gap list."""
+    out = []
+    for f in dataclasses.fields(cls):
+        if f.name in skip:
+            continue
+        ann = f.type if isinstance(f.type, str) else getattr(f.type, "__name__", str(f.type))
+        key = (cls.__name__, f.name)
+        spec = SPECIAL.get(key) or SPECIAL.get(("ManeuverFields", f.name) if f.name in ("start_actions", "end_actions") else key)
+        if spec:
+            ros, default = spec
+        elif ann in SCALARS:
+            ros = SCALARS[ann]
+            if ann == "int":
+                ros = INT_TYPES.get(f.name, "int64")
+            default = None
+            if f.default is not dataclasses.MISSING:
+                d = f.default
+                default = fnum(d) if ann == "float" else ("true" if d is True else "false") if ann == "bool" else (repr(int(d)) if ann == "int" else f'"{d}"')
+                if ann == "str" and d == "":
+                    default = None
+                if ann == "int" and d == 0:
+                    default = None
+                if ann == "float" and f.default == 0.0 and not math.copysign(1, f.default) < 0:
+                    default = None
+            elif f.default_factory is not dataclasses.MISSING:
+                raise TypeError(f"{cls.__name__}.{f.name}: a default factory on a scalar field")
+        else:
+            raise TypeError(f"{cls.__name__}.{f.name}: type {ann!r} has no entry in SPECIAL (add one to the generator)")
+        if ann == "float" and not spec and f.default is not dataclasses.MISSING and f.default == 0.0:
+            default = None
+        notes = []
+        if default is not None and ("nan" in default or "inf" in default):
+            # the rosidl generators of the C++ and Python typesupport read a default with ast.literal_eval, which has no nan or inf: not representable
+            UNREPRESENTABLE.append(f"{owner_name}.{f.name}: library default {default}")
+            notes.append(f"library default {default.strip('[]')}: not representable in a rosidl default, the field is 0 when unset; the sender must set it")
+            default = None
+        unit, frame = f.metadata.get("unit"), f.metadata.get("frame")
+        if unit:
+            notes.append(f"unit: {unit}")
+        if frame:
+            notes.append(f"frame: {frame}")
+        if ros in NUMERIC and not (unit and frame):
+            missing = [n for n, v in (("unit", unit), ("frame", frame)) if not v]
+            notes.append("GAP: " + " and ".join(missing) + " not given by the library")
+            gaps.append(f"{owner or cls.__name__}.{f.name}: {' and '.join(missing)}")
+        out.append((ros, f.name, default, "; ".join(notes)))
+    return out
+
+
+def render_fields(fields, with_defaults=True):
+    lines = []
+    for ros, name, default, note in fields:
+        decl = f"{ros} {name}" + (f" {default}" if default is not None and with_defaults else "")
+        lines.append(decl + (f"  # {note}" if note else ""))
+    return lines
+
+
+def msg_text(name, doc, fields, library, preamble=()):
+    lines = [f"# {name}: generated by tools/generate_interfaces.py from more_generic_models {library}. Do not edit."]
+    lines += comment(doc) + (["#"] + comment(FRAME_NOTE) if name not in HELPERS else []) + list(preamble)
+    lines += render_fields(fields)
+    return "\n".join(lines) + "\n"
+
+
+NO_DOC = []
+UNREPRESENTABLE = []
+
+
+def doc_of(cls):
+    import inspect
+    doc = inspect.getdoc(cls) or ""
+    if not doc or doc.startswith(cls.__name__ + "("):          # a dataclass with no docstring gets its signature as __doc__
+        NO_DOC.append(cls.__name__)
+        return "GAP: the library gives no description of this class."
+    return doc
+
+
+def generate() -> dict:
+    mods, base, plan, surf = load_library()
+    orders, reports, maneuvers = collect(mods, base, plan, surf)
+    version = library_version()
+    library = version
+    gaps = Gaps()
+    files = {}
+    NO_DOC.clear()
+    UNREPRESENTABLE.clear()
+
+    for name, (doc, fields) in HELPERS.items():
+        files[f"msg/{name}.msg"] = msg_text(name, doc, fields, library)
+
+    # PartAction (a record of the shared order base, not an order itself)
+    part_action = find_class(mods, "PartAction")
+    files["msg/PartAction.msg"] = msg_text("PartAction", doc_of(part_action), field_lines(part_action, gaps, skip=()), library)
+
+    order_fields = {}
+    for name, cls in {**orders, **maneuvers}.items():
+        if name == "ValidateOrder":
+            continue
+        order_fields[name] = field_lines(cls, gaps, skip=())
+        files[f"msg/{name}.msg"] = msg_text(name, doc_of(cls), order_fields[name], library)
+
+    for name, cls in reports.items():
+        flds = field_lines(cls, gaps, skip=("t",))
+        if dataclasses.fields(cls)[0].name != "t":
+            raise TypeError(f"{name}: first field is not t")
+        extra = [("string", "child_frame_id", None, "frame of the body vectors, <vehicle>/base_link_fsd (FRD), set by the bridge")] if name == "EstimatedStateReport" else []
+        stamp = [("std_msgs/Header", "header", None, "stamp = t rounded to ns; frame_id map_ned for positions"),
+                 ("uint64", "stream_seq", None, "publication counter per vehicle across all report types (restores the drain order)"),
+                 ("float64", "t", None, "unit: s; the sample instant on the scenario clock, exactly")]
+        files[f"msg/{name}.msg"] = msg_text(name, doc_of(cls), stamp + extra + flds, library)
+
+    def union(uname, doc, members):
+        flds = [("string", "kind", None, "the class name of the member that is set")] + [(f"{m}[<=1]", snake(m), None, "") for m in members]
+        files[f"msg/{uname}.msg"] = msg_text(uname, doc, flds, library)
+
+    union("Maneuver", "One manoeuvre of a plan: exactly one member is set, named by kind (ROS interfaces cannot be recursive or polymorphic).", list(maneuvers))
+    union("Order", "One order: exactly one member is set, named by kind. ValidateOrder is a service of its own (an order that holds any order cannot be a member).",
+          [n for n in order_fields if n != "ValidateOrder"])
+
+    srv_head = "# {n}: generated by tools/generate_interfaces.py from more_generic_models {v}. Do not edit.\n"
+    files["srv/SendOrder.srv"] = (srv_head.format(n="SendOrder", v=library) +
+        "# Hand an order to the vehicle. The response comes at once; the vehicle's answer is the OrderReply on the order_reply topic.\n"
+        "# A malformed order gives order_id = 0 and the library's text in error (no id is used).\n"
+        "Order order\n---\nuint32 order_id\nstring error\nstring code  # a key of the library's refusal codes; empty when none\n")
+    files["srv/CheckOrder.srv"] = (srv_head.format(n="CheckOrder", v=library) +
+        "# Would the vehicle take this order at send time. Nothing is queued and no id is used.\n"
+        "Order order\n---\nbool takes\nstring reason\nstring code  # a key of the library's refusal codes; empty when the order is taken\n")
+    files["srv/ValidateOrder.srv"] = (srv_head.format(n="ValidateOrder", v=library) +
+        "# Send a ValidateOrder: asks whether the vehicle would take the order as it is now, nothing is applied. Answered by an OrderReply.\n"
+        "Order order\n---\nuint32 order_id\nstring error\nstring code\n")
+    files["srv/Describe.srv"] = (srv_head.format(n="Describe", v=library) +
+        "# What the vehicle's API offers. Reads only; never sends a QueryCapabilities.\n"
+        "---\nstring vehicle\nstring model\nstring[] topics  # the library's names of the reports and channels\n"
+        "string[] report_topics  # the same as topic names\nbool has_capabilities\nCapabilitiesReport capabilities\n")
+    files["action/ExecutePlan.action"] = (
+        "# ExecutePlan: generated by tools/generate_interfaces.py from more_generic_models " + library + ". Do not edit.\n"
+        "# Run a plan: built only from StartPlan, PlanStateReport and StopPlan. The definition is here; the server is a later stage.\n"
+        "StartPlan start\n---\nuint32 order_id\n"
+        "string outcome  # SUCCEEDED, FAILED, ABORTED, CANCELLED, REPLACED, REFUSED or RESET\nstring reason\nPlanStateReport last\n---\nPlanStateReport state\n")
+
+    gaps.extend(f"{n}: class docstring" for n in sorted(set(NO_DOC)))
+    gap_text = ("# Fields whose unit or frame the library does not state (marked GAP in the .msg comments). Generated.\n"
+                f"# more_generic_models {library}: {len(gaps)} entries.\n" + "\n".join(sorted(gaps)) + "\n")
+    files["doc/metadata_gaps.txt"] = gap_text
+    files["doc/unrepresentable_defaults.txt"] = (
+        "# Library defaults that a rosidl .msg cannot carry (NaN, inf): an unset field is 0 in ROS. Generated.\n"
+        f"# more_generic_models {library}: {len(UNREPRESENTABLE)} entries.\n" + "\n".join(sorted(set(UNREPRESENTABLE))) + "\n")
+    lines = ["# Generated by tools/generate_interfaces.py. Do not edit."]
+    for d in ("msg", "srv", "action"):
+        lines += [f'list(APPEND INTERFACE_FILES "{p}")' for p in sorted(files) if p.startswith(d + "/")]
+    files["cmake/interface_files.cmake"] = "\n".join(lines) + "\n"
+    return files
+
+
+def stamp() -> str:
+    return f"more_generic_models {library_version()}\ncommit {library_commit()}\n"
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true", help="write nothing; exit 1 when a committed file differs from a fresh generation")
+    a = ap.parse_args(argv)
+    files = generate()
+    existing = {str(p.relative_to(ROOT)) for d in ("msg", "srv", "action") for p in (ROOT / d).glob("*") if p.is_file()} | {"doc/metadata_gaps.txt", "doc/unrepresentable_defaults.txt", "cmake/interface_files.cmake"}
+    stale = sorted(existing - set(files))
+    changed = sorted(p for p, t in files.items() if not (ROOT / p).exists() or (ROOT / p).read_text() != t)
+    if a.check:
+        for p in changed + [f"{p} (stale)" for p in stale]:
+            print("differs:", p)
+        return 1 if changed or stale else 0
+    for p in stale:
+        (ROOT / p).unlink()
+    for p, t in files.items():
+        (ROOT / p).parent.mkdir(exist_ok=True)
+        (ROOT / p).write_text(t)
+    (ROOT / "GENERATED_FROM").write_text(stamp())
+    print(f"wrote {len(files)} files from more_generic_models {library_version()}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
