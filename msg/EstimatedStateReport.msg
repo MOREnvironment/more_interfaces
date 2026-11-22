@@ -12,5 +12,5 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string child_frame_id  # frame of the body vectors, <vehicle>/base_link_fsd (FRD), set by the bridge
 float64[6] eta  # GAP: unit and frame not given by the library
 float64[6] nu  # GAP: unit and frame not given by the library
-float64 altitude  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64[3] velocity_ned  # library default nan, nan, nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] altitude  # optional: empty = no valid measurement; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=3] velocity_ned  # optional: empty = unknown, the library's all-NaN vector; otherwise exactly 3 values (NaN entries allowed). MGM default [nan, nan, nan]; GAP: unit and frame not given by the library

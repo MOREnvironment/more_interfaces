@@ -14,12 +14,12 @@ float64 var_north  # GAP: unit and frame not given by the library
 float64 var_east  # GAP: unit and frame not given by the library
 float64 var_down  # GAP: unit and frame not given by the library
 float64 var_yaw  # GAP: unit and frame not given by the library
-float64 var_roll  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_pitch  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_u  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_v  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_w  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_p  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_q  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 var_r  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] var_roll  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_pitch  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_u  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_v  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_w  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_p  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_q  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] var_r  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
 Matrix covariance  # GAP: unit and frame not given by the library

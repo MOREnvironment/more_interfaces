@@ -6,7 +6,7 @@
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
 string maneuver_id
-float64 timeout  # library default inf: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
 PartAction[] start_actions
 PartAction[] end_actions
 float64 x  # GAP: unit and frame not given by the library
@@ -14,6 +14,6 @@ float64 y  # GAP: unit and frame not given by the library
 float64 end_z  # GAP: unit and frame not given by the library
 float64 radius  # GAP: unit and frame not given by the library
 float64 speed  # GAP: unit and frame not given by the library
-float64 start_z  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] start_z  # optional: empty = the depth the vehicle has; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
 string z_mode "depth"
 bool use_current_position false

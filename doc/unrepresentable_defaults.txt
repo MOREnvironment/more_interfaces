@@ -1,63 +1,64 @@
-# Library defaults that a rosidl .msg cannot carry (NaN, inf): an unset field is 0 in ROS. Generated.
+# Library defaults that a rosidl .msg cannot carry (NaN, inf): each such field is an optional field (a bounded array of at most one value, or at most
+# N for a vector), empty = the library's default. Generated.
 # more_generic_models 0.1.0: 61 entries.
-Brake.duration: library default inf
-Brake.timeout: library default inf
-EnergyReport.confidence: library default nan
-EstimatedStateReport.altitude: library default nan
-EstimatedStateReport.velocity_ned: library default [nan, nan, nan]
-FixReport.accuracy: library default nan
-FixReport.depth: library default nan
-FixReport.latitude: library default nan
-FixReport.longitude: library default nan
-FixReport.measurement_time: library default nan
-FixReport.range: library default nan
-FollowPath.timeout: library default inf
-GoToPoint.timeout: library default inf
-HoldSetpoint.duration: library default inf
-HoldSetpoint.timeout: library default inf
-Idle.duration: library default inf
-Idle.timeout: library default inf
-LimitsReport.max_altitude: library default nan
-LimitsReport.max_depth: library default nan
-LimitsReport.max_speed: library default nan
-LimitsReport.max_vertical_rate: library default nan
-LimitsReport.min_altitude: library default nan
-LimitsReport.min_speed: library default nan
-LinkReport.arrival: library default nan
-LinkReport.integrity: library default nan
-LinkReport.snr_db: library default nan
-Loiter.duration: library default inf
-Loiter.timeout: library default inf
-NavigationUncertaintyReport.var_p: library default nan
-NavigationUncertaintyReport.var_pitch: library default nan
-NavigationUncertaintyReport.var_q: library default nan
-NavigationUncertaintyReport.var_r: library default nan
-NavigationUncertaintyReport.var_roll: library default nan
-NavigationUncertaintyReport.var_u: library default nan
-NavigationUncertaintyReport.var_v: library default nan
-NavigationUncertaintyReport.var_w: library default nan
-PartStateReport.value: library default nan
-PlanStateReport.maneuver_time_to_go: library default nan
-PlanStateReport.plan_time_to_go: library default nan
-Rows.timeout: library default inf
-SetLimits.max_altitude: library default nan
-SetLimits.max_depth: library default nan
-SetLimits.max_speed: library default nan
-SetLimits.max_vertical_rate: library default nan
-SetLimits.min_altitude: library default nan
-SetLimits.min_speed: library default nan
-SetStationRadii.inner_radius: library default nan
-SetStationRadii.outer_radius: library default nan
-SpiralProfile.start_z: library default nan
-SpiralProfile.timeout: library default inf
-StationKeeping.duration: library default inf
-StationKeeping.radius: library default nan
-StationKeeping.speed: library default nan
-StationKeeping.timeout: library default inf
-StationKeeping.z: library default nan
-SurfaceAndHold.duration: library default inf
-SurfaceAndHold.timeout: library default inf
-VehicleModeReport.last_error_t: library default nan
-VehicleModeReport.maneuver_start_t: library default nan
-VehicleModeReport.maneuver_time_to_go: library default nan
-YoYo.timeout: library default inf
+Brake.duration: float64[<=1], MGM default inf, empty = never ends by time
+Brake.timeout: float64[<=1], MGM default inf, empty = no timeout
+EnergyReport.confidence: float64[<=1], MGM default nan, empty = the sensor gives none
+EstimatedStateReport.altitude: float64[<=1], MGM default nan, empty = no valid measurement
+EstimatedStateReport.velocity_ned: float64[<=3], MGM default [nan, nan, nan], empty = unknown
+FixReport.accuracy: float64[<=1], MGM default nan, empty = the fix gives none
+FixReport.depth: float64[<=1], MGM default nan, empty = the fix gives none
+FixReport.latitude: float64[<=1], MGM default nan, empty = the fix gives none
+FixReport.longitude: float64[<=1], MGM default nan, empty = the fix gives none
+FixReport.measurement_time: float64[<=1], MGM default nan, empty = the fix gives none
+FixReport.range: float64[<=1], MGM default nan, empty = the fix gives none
+FollowPath.timeout: float64[<=1], MGM default inf, empty = no timeout
+GoToPoint.timeout: float64[<=1], MGM default inf, empty = no timeout
+HoldSetpoint.duration: float64[<=1], MGM default inf, empty = never ends by time
+HoldSetpoint.timeout: float64[<=1], MGM default inf, empty = no timeout
+Idle.duration: float64[<=1], MGM default inf, empty = never ends by time
+Idle.timeout: float64[<=1], MGM default inf, empty = no timeout
+LimitsReport.max_altitude: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LimitsReport.max_depth: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LimitsReport.max_speed: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LimitsReport.max_vertical_rate: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LimitsReport.min_altitude: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LimitsReport.min_speed: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
+LinkReport.arrival: float64[<=1], MGM default nan, empty = the link has none
+LinkReport.integrity: float64[<=1], MGM default nan, empty = the link has none
+LinkReport.snr_db: float64[<=1], MGM default nan, empty = the link has none
+Loiter.duration: float64[<=1], MGM default inf, empty = never ends by time
+Loiter.timeout: float64[<=1], MGM default inf, empty = no timeout
+NavigationUncertaintyReport.var_p: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_pitch: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_q: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_r: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_roll: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_u: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_v: float64[<=1], MGM default nan, empty = the navigation gives none
+NavigationUncertaintyReport.var_w: float64[<=1], MGM default nan, empty = the navigation gives none
+PartStateReport.value: float64[<=1], MGM default nan, empty = none (the monitor judged no number)
+PlanStateReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = unknown
+PlanStateReport.plan_time_to_go: float64[<=1], MGM default nan, empty = unknown
+Rows.timeout: float64[<=1], MGM default inf, empty = no timeout
+SetLimits.max_altitude: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetLimits.max_depth: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetLimits.max_speed: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetLimits.max_vertical_rate: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetLimits.min_altitude: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetLimits.min_speed: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
+SetStationRadii.inner_radius: float64[<=1], MGM default nan, empty = unchanged (the radius is left as it is)
+SetStationRadii.outer_radius: float64[<=1], MGM default nan, empty = unchanged (the radius is left as it is)
+SpiralProfile.start_z: float64[<=1], MGM default nan, empty = the depth the vehicle has
+SpiralProfile.timeout: float64[<=1], MGM default inf, empty = no timeout
+StationKeeping.duration: float64[<=1], MGM default inf, empty = never ends by time
+StationKeeping.radius: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without)
+StationKeeping.speed: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field)
+StationKeeping.timeout: float64[<=1], MGM default inf, empty = no timeout
+StationKeeping.z: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without)
+SurfaceAndHold.duration: float64[<=1], MGM default inf, empty = never ends by time
+SurfaceAndHold.timeout: float64[<=1], MGM default inf, empty = no timeout
+VehicleModeReport.last_error_t: float64[<=1], MGM default nan, empty = none (no breach yet)
+VehicleModeReport.maneuver_start_t: float64[<=1], MGM default nan, empty = none (no manoeuvre runs)
+VehicleModeReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = unknown
+YoYo.timeout: float64[<=1], MGM default inf, empty = no timeout

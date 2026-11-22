@@ -2,7 +2,8 @@
 # ``mode``: the mode word of the API; ``parts_in_error``: the monitors that judged a breach in the last period (their sources);
 # ``last_error``: the reason of the latest breach (empty: none yet) and ``last_error_t`` the time it appeared (s, NaN: none).
 # ``maneuver_kind``: the algorithm name of the manoeuvre the plan runs now (empty: none runs), ``maneuver_start_t`` the time it
-# began (s, NaN: none) and ``maneuver_time_to_go`` the time it has left (s, NaN: unknown).
+# began (s, NaN: none) and ``maneuver_time_to_go`` the time it has left (s, NaN: unknown). ``order_id``: the id ``send`` gave the
+# order whose plan runs now (0: no plan runs, or it was started by a scripted order, which has no id).
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
@@ -12,7 +13,8 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string mode
 string[] parts_in_error
 string last_error
-float64 last_error_t  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] last_error_t  # optional: empty = none (no breach yet); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
 string maneuver_kind
-float64 maneuver_start_t  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 maneuver_time_to_go  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] maneuver_start_t  # optional: empty = none (no manoeuvre runs); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] maneuver_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+uint32 order_id

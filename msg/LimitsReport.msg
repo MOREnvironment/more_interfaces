@@ -10,10 +10,10 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64 max_depth  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 min_altitude  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 max_altitude  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 min_speed  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 max_speed  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 max_vertical_rate  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] max_depth  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] min_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] max_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] min_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] max_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] max_vertical_rate  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
 PlaneVertex[] region  # GAP: unit and frame not given by the library

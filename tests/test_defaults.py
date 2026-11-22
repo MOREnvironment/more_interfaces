@@ -1,18 +1,18 @@
-"""Defaults of the library in the interface: NaN and inf are NOT representable (finding of the job A1), everything else is and arrives unchanged.
+"""Defaults of the library in the interface. A NaN or inf default cannot be a .msg default (rosidl reads it with ``ast.literal_eval``: shown 2026-11-21 on
+jazzy), so such a field is an OPTIONAL field (owner decision 2026-11-22): ``float64[<=1] name``, empty = the library's default; an array whose default is all
+NaN is ``float64[<=N]``, empty = all NaN, else exactly N values. The comment of the field states the default and what empty means.
 
-The rosidl generators of the C++ and Python typesupport read a .msg default with ``ast.literal_eval``, which has no ``nan`` or ``inf``: a .msg that carries
-one does not build (shown 2026-11-21 on jazzy). The generator therefore writes no default for them and lists them in ``doc/unrepresentable_defaults.txt``.
-(1) Text: every NaN / inf default of the library is in that list and in no .msg default. (2) Built messages (skipped only when the package is not
-importable, i.e. outside colcon): every other default equals the library's; every listed field is 0 when unset, which is the stated limitation: a sender
-that means "unchanged" (SetLimits, SetStationRadii) must set NaN itself.
+(1) Text: every NaN / inf default of the library is such a field, listed in ``doc/unrepresentable_defaults.txt``, its comment states the library's default,
+and no .msg carries a nan / inf literal. (2) Built messages (skipped only when the package is not importable, i.e. outside colcon): every optional field is
+empty when unset and every other default equals the library's.
 """
 import dataclasses
 import importlib
 import math
+import re
 
 import numpy as np
 import pytest
-
 
 def _same(a, b):
     a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
@@ -43,18 +43,48 @@ def _nonfinite(generator):
                 yield name, f, d
 
 
-def test_every_nan_and_inf_default_is_listed_and_none_is_in_a_msg(generator):
+def _msg_line(generator, name, field):
+    for ln in (generator.ROOT / "msg" / f"{name}.msg").read_text().splitlines():
+        decl = ln.split("#")[0].split()
+        if decl[1:2] == [field]:
+            return ln
+    raise AssertionError(f"{name}.{field}: no declaration")
+
+
+def _text(d):
+    arr = np.atleast_1d(np.asarray(d, dtype=float))
+    one = "nan" if np.isnan(arr[0]) else ("inf" if arr[0] > 0 else "-inf")
+    return one if np.ndim(d) == 0 else "[" + ", ".join(one for _ in arr) + "]"
+
+
+def test_every_nan_and_inf_default_is_an_optional_field_with_the_libraries_default_stated(generator):
     listed = (generator.ROOT / "doc" / "unrepresentable_defaults.txt").read_text()
-    kinds = set()
+    kinds, n = set(), 0
     for name, f, d in _nonfinite(generator):
-        assert f"{name}.{f.name}: library default" in listed, f"{name}.{f.name} is not in the list"
-        line = next(ln for ln in (generator.ROOT / "msg" / f"{name}.msg").read_text().splitlines() if ln.split("#")[0].split()[1:2] == [f.name])
-        assert len(line.split("#")[0].split()) == 2, f"{name}.{f.name}: a nan / inf default was written into the .msg: {line}"
+        line = _msg_line(generator, name, f.name)
+        decl, _, note = line.partition("#")
+        n += 1
+        if np.ndim(d) == 0:
+            assert decl.split()[0] == "float64[<=1]", f"{name}.{f.name} is not optional: {line}"
+        else:
+            assert decl.split()[0] == f"float64[<={len(d)}]", f"{name}.{f.name}: {line}"
+        assert len(decl.split()) == 2, f"{name}.{f.name}: a default was written: {line}"
+        assert "optional: empty = " in note, f"{name}.{f.name}: the comment does not say what empty means"
+        stated = re.search(r"MGM default (\S.*?)(;|$)", note)
+        assert stated and stated.group(1).strip() == _text(d), f"{name}.{f.name}: documented default {stated and stated.group(1)!r} != MGM's {_text(d)!r}"
+        assert f"{name}.{f.name}: {decl.split()[0]}, MGM default {_text(d)}," in listed, f"{name}.{f.name} is not in the list"
         kinds.add("nan" if np.any(np.isnan(d)) else "inf")
-    assert kinds == {"nan", "inf"}
+    assert kinds == {"nan", "inf"} and n >= 61
+    assert listed.count("MGM default") == n, "the list has entries the library no longer has"
 
 
-def test_built_messages_carry_the_representable_defaults_and_zero_for_the_listed(generator):
+def test_no_msg_carries_a_nan_or_inf_literal(generator):
+    bad = [(p.name, ln) for p in sorted(generator.ROOT.glob("msg/*.msg")) + sorted(generator.ROOT.glob("srv/*.srv")) + sorted(generator.ROOT.glob("action/*.action"))
+           for ln in p.read_text().splitlines() if re.search(r"\b-?(nan|inf)\b", ln.split("#")[0], re.I)]
+    assert not bad, bad
+
+
+def test_built_messages_carry_the_representable_defaults_and_empty_for_the_optional(generator):
     try:
         msgmod = importlib.import_module("vehicle_api_interfaces.msg")
     except ImportError:
@@ -69,7 +99,7 @@ def test_built_messages_carry_the_representable_defaults_and_zero_for_the_listed
             d = _library_default(f)
             got = getattr(msg, f.name, None)
             if (name, f.name) in nonfinite:
-                assert _same(got, np.zeros_like(np.asarray(d, dtype=float))), f"{name}.{f.name}: expected 0 when unset, got {got!r}"
+                assert len(got) == 0, f"{name}.{f.name}: expected empty (= MGM's default) when unset, got {got!r}"
                 checked += 1
             elif f.type in ("float", "int") and d is not None:
                 assert _same(got, d), f"{name}.{f.name}: {got!r} != library default {d!r}"

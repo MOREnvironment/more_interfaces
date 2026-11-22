@@ -1,5 +1,7 @@
-# Fields whose unit or frame the library does not state (marked GAP in the .msg comments). Generated.
-# more_generic_models 0.1.0: 160 entries.
+# Fields whose unit or frame the library does not state (marked GAP in the .msg comments), and fields whose unit or frame the library itself
+# states as unknown, mixed or record (written as given in the .msg comments). Generated.
+# more_generic_models 0.1.0: 159 missing, 0 stated unknown by the library.
+# missing (the library gives no metadata for the field):
 ActuatorStateReport.value: unit and frame
 AidingEventReport.innovation: unit and frame
 AidingEventReport.nis: unit and frame
@@ -16,7 +18,6 @@ Brake: class docstring
 CapabilitiesReport.limits: unit and frame
 CapabilitiesReport.periods: unit and frame
 ControlModeReport.fuel: unit and frame
-ControlModeReport: class docstring
 ControlOutputReport.realized_wrench: unit and frame
 ControlOutputReport.requested_wrench: unit and frame
 EnergyReport.confidence: unit and frame
@@ -160,3 +161,5 @@ YoYo.timeout: unit and frame
 YoYo.x: unit and frame
 YoYo.y: unit and frame
 YoYo.z: unit and frame
+# stated unknown by the library (unit or frame is unknown, mixed or record):
+

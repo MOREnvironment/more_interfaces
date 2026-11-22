@@ -14,4 +14,4 @@ string part
 string kind
 string health
 string text_kind
-float64 value  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] value  # optional: empty = none (the monitor judged no number); send one value to set it. MGM default nan; GAP: unit and frame not given by the library

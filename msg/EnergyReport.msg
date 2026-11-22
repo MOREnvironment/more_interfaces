@@ -8,4 +8,4 @@ std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for position
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
 float64 state_of_charge  # GAP: unit and frame not given by the library
-float64 confidence  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] confidence  # optional: empty = the sensor gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library

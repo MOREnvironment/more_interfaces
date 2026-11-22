@@ -14,6 +14,6 @@ string peer
 string kind
 int64 seq
 int64 size_bytes
-float64 snr_db  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 integrity  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 arrival  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] snr_db  # optional: empty = the link has none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] integrity  # optional: empty = the link has none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] arrival  # optional: empty = the link has none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library

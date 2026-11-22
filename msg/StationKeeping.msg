@@ -8,13 +8,13 @@
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
 string maneuver_id
-float64 timeout  # library default inf: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
 PartAction[] start_actions
 PartAction[] end_actions
 float64 x  # GAP: unit and frame not given by the library
 float64 y  # GAP: unit and frame not given by the library
-float64 z  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 radius  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 speed  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] z  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] radius  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] speed  # optional: empty = not given (a vehicle that needs it refuses the order and names the field); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
 string z_mode "depth"
-float64 duration  # library default inf: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; GAP: unit and frame not given by the library

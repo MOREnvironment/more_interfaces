@@ -14,9 +14,9 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 bool received
 string target
 string observer
-float64 latitude  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 longitude  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 depth  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 accuracy  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 measurement_time  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
-float64 range  # library default nan: not representable in a rosidl default, the field is 0 when unset; the sender must set it; GAP: unit and frame not given by the library
+float64[<=1] latitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] longitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] depth  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] accuracy  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] measurement_time  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+float64[<=1] range  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
