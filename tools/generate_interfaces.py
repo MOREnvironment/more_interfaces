@@ -5,10 +5,14 @@ The library (``more_generic_models``) is imported as an installed package; its v
 deterministic: the same classes give the same bytes. ``python tools/generate_interfaces.py`` writes ``msg/``, ``srv/``, ``action/`` and
 ``doc/metadata_gaps.txt`` and the stamp ``GENERATED_FROM``; ``--check`` writes nothing and fails when a committed file differs.
 
-Field types: ``float`` -> float64, ``int`` -> int32 / uint32 / int64 (by name, ``INT_TYPES``), ``bool`` -> bool, ``str`` -> string, each with the
-library's default, except that a field whose default is NaN or inf becomes an optional field (see ``OPTIONAL``): ``float64[<=1]``, empty = the
-library's default, or for an array whose default is all NaN ``float64[<=N]``, empty = all NaN, otherwise exactly N values. Every other field (arrays, tuples, dicts, nested records, ``object``) is named in ``SPECIAL``; a field of
-a reachable class that is neither a scalar nor in ``SPECIAL`` stops the generator, so a field the library appends later breaks the build, not the run.
+Field types are read from the library's declaration alone: the field's annotation (``float``, ``int``, ``bool``, ``str``, ``tuple[str, ...]``,
+``tuple[tuple[str, float], ...]``, ``dict[str, float]``, a dataclass) or, where Python cannot say it, the ``elements`` entry of the field's metadata
+(``vector``, ``matrix``, ``square_matrix``, ``records``, ``any_order``, ``open_mapping``); orders come from ``base.order_types()``. A field that can be
+mapped by neither stops the generator (an MGM gap is reported, not worked around). A tuple entry gets a generated message named by its entry types
+(``StrFloat``) with fields ``item0``, ``item1``: the library names no entry field. An ``int`` is ``uint32`` when its unit is ``id``, else ``int64``.
+A field whose default is NaN or inf becomes an optional field (see ``OPTIONAL``): ``float64[<=1]``, empty = the library's default; an array whose
+default is all NaN, or None, is ``float64[<=N]``, empty = that default, otherwise the full array. What an empty field means is stated in ``OPTIONAL``
+(the library does not declare it per field).
 Units, frames and notes are read from the field's ``metadata`` (``unit``, ``frame``, ``doc``) when the library gives them and go into the field comment;
 a value the library states as ``unknown`` / ``mixed`` / ``record`` is written as given and listed in ``doc/metadata_gaps.txt`` as stated unknown by the
 library. Where the library gives no metadata at all, the comment carries the marker ``GAP`` and the field is listed there as missing.
@@ -32,54 +36,6 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = "vehicle_api_interfaces"
-
-# --- the interface's own helper records -------------------------------------------------------------------------------------------------------
-HELPERS = {
-    "KeyValue": ("A name and a number (a setting, a period).", [("string", "key", None, ""), ("float64", "value", None, "")]),
-    "Waypoint": ("One point of a path: north and east in m (NED, about the scenario origin), z in the unit of the manoeuvre's z_mode, speed in m/s.",
-                 [("float64", n, None, "") for n in ("x", "y", "z", "speed")]),
-    "Transition": ("An ordered pair of manoeuvre ids: the destination starts when the source is done.",
-                   [("string", "source", None, ""), ("string", "destination", None, "")]),
-    "PlaneVertex": ("A vertex of a polygon: north and east in m (NED, about the scenario origin).", [("float64", "x", None, ""), ("float64", "y", None, "")]),
-    "LimitBound": ("One operating limit and the bounds within which it can be set (same unit as the limit).",
-                   [("string", "field", None, ""), ("float64", "minimum", None, ""), ("float64", "maximum", None, "")]),
-    "Matrix": ("A matrix, row-major. rows = 0 means there is none (the library's None).",
-               [("uint32", "rows", None, ""), ("uint32", "cols", None, ""), ("float64[]", "data", None, "")]),
-}
-
-# Helper records emitted only when a field uses them (the library may not have the field yet).
-OPTIONAL_HELPERS = {
-    "EntryLevelOrder": ("A pair: an entry level and the name of an order that commands it.", [("string", "level", None, ""), ("string", "order", None, "")]),
-}
-
-# (class, field) -> (ros type, default or None). Everything that is not a plain float / int / bool / str.
-NAN3, NAN6 = "[nan, nan, nan]", "[nan, nan, nan, nan, nan, nan]"
-SPECIAL = {
-    ("EstimatedStateReport", "eta"): ("float64[6]", None), ("EstimatedStateReport", "nu"): ("float64[6]", None),
-    ("EstimatedStateReport", "velocity_ned"): ("float64[3]", NAN3),
-    ("NavigationUncertaintyReport", "covariance"): ("Matrix", None),
-    ("VehicleModeReport", "parts_in_error"): ("string[]", None),
-    ("PathTrackingReport", "leg_start"): ("float64[3]", None), ("PathTrackingReport", "leg_end"): ("float64[3]", None),
-    ("ControlOutputReport", "requested_wrench"): ("float64[6]", None), ("ControlOutputReport", "realized_wrench"): ("float64[6]", None),
-    ("ControlOutputReport", "enabled"): ("bool[6]", None),
-    ("AidingEventReport", "innovation"): ("float64[]", None),
-    ("SensorReadingReport", "values"): ("KeyValue[]", None), ("SensorReadingReport", "covariance"): ("Matrix", None),
-    ("PayloadStateReport", "settings"): ("KeyValue[]", None),
-    ("LimitsReport", "region"): ("PlaneVertex[]", None), ("SetLimits", "region"): ("PlaneVertex[]", None),
-    ("CapabilitiesReport", "orders"): ("string[]", None), ("CapabilitiesReport", "reports"): ("string[]", None),
-    ("CapabilitiesReport", "entry_levels"): ("string[]", None), ("CapabilitiesReport", "periods"): ("KeyValue[]", None),
-    ("CapabilitiesReport", "limits"): ("LimitBound[]", None), ("CapabilitiesReport", "entry_level_orders"): ("EntryLevelOrder[]", None),
-    ("PlanQueryReply", "maneuver_ids"): ("string[]", None), ("PlanQueryReply", "maneuvers"): ("Maneuver[]", None),
-    ("PlanQueryReply", "transitions"): ("Transition[]", None),
-    ("PlanListReply", "plan_ids"): ("string[]", None), ("PlanListReply", "checksums"): ("string[]", None),
-    ("PartAction", "settings"): ("KeyValue[]", None), ("SetPayload", "settings"): ("KeyValue[]", None),
-    ("FollowPath", "points"): ("Waypoint[]", None),
-    ("StorePlan", "maneuvers"): ("Maneuver[]", None), ("StorePlan", "transitions"): ("Transition[]", None),
-    ("StartPlan", "maneuvers"): ("Maneuver[]", None),
-}
-for _m in ("ManeuverFields",):
-    SPECIAL[(_m, "start_actions")] = ("PartAction[]", None)
-    SPECIAL[(_m, "end_actions")] = ("PartAction[]", None)
 
 # What an empty optional field means, per (class, field), then per class, then per field name. A nan / inf default with no entry stops the generator.
 _UNCHANGED = "unchanged (the limit is left as it is)"
@@ -106,12 +62,11 @@ OPTIONAL_CLASS = {
 }
 OPTIONAL_NAME = {"timeout": "no timeout", "duration": "never ends by time"}
 
-INT_TYPES = {"order_id": "uint32", "index": "int32", "count": "int32"}      # any other int field: int64
 FRAME_NOTE = ("Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from north "
               "clockwise, time in s on the scenario clock.")
 STAMP_FIELDS = (("std_msgs/Header", "header"), ("uint64", "stream_seq"), ("float64", "t"))
-SCALARS = {"float": "float64", "int": "int64", "bool": "bool", "str": "string"}
-NUMERIC = ("float64", "float64[]", "float64[3]", "float64[6]", "Matrix", "KeyValue[]", "LimitBound[]", "PlaneVertex[]", "Waypoint[]")
+SCALARS = {float: "float64", int: "int64", bool: "bool", str: "string"}
+DTYPES = {"float": "float64", "bool": "bool", "str": "string"}
 MGM_MODULES = ("more_generic_models.vehicle_api.messages", "more_generic_models.vehicle_api.plan_reference.messages",
                "more_generic_models.vehicle_api.external_control.messages")
 
@@ -187,16 +142,18 @@ def library_commit() -> str:
 
 
 def collect(mods, base, plan, surf):
-    orders = {}
-    for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):
-        orders.update(api.ORDERS)
-    for c in tuple(base.CATEGORY_ORDERS) + tuple(getattr(base, "DEADMAN_ORDERS", ())):        # DEADMAN_ORDERS: KeepAlive
-        orders[c.__name__] = c
+    """Orders (``base.order_types()``), reports (the families' ``REPORT_TYPES``) and manoeuvres (the classes a ``records`` entry of a field names)."""
+    orders = {c.__name__: c for c in base.order_types()}
     report_names = set()
     for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):
         report_names.update(api.REPORT_TYPES)
     reports = {n: find_class(mods, n) for n in sorted(report_names)}
-    maneuvers = {c.__name__: c for c in plan.messages.MANEUVERS}
+    maneuvers = {}
+    for cls in [*orders.values(), *reports.values()]:
+        for f in dataclasses.fields(cls):
+            el = f.metadata.get("elements")
+            if el and el["kind"] == "records":
+                maneuvers.update({n: find_class(mods, n) for n in el["of"]})
     return dict(sorted(orders.items())), reports, dict(sorted(maneuvers.items()))
 
 
@@ -209,54 +166,131 @@ UNKNOWN = []        # fields whose unit or frame the library states as unknown /
 OPTIONAL_FIELDS = []
 
 
+def _base_of(names, classes):
+    """The name of the union message of a set of classes: their common base class, minus a ``Fields`` suffix."""
+    bases = set.intersection(*[set(c.__mro__) for c in classes]) - {object}
+    bases = [b for b in classes[0].__mro__ if b in bases and dataclasses.is_dataclass(b)]
+    if not bases:
+        raise TypeError(f"no common base dataclass for {names}")
+    return bases[0].__name__.removesuffix("Fields")
+
+
+def _entry(t, where):
+    """The ros type of one scalar of a tuple entry, named by its Python type."""
+    if t in SCALARS:
+        return SCALARS[t], t.__name__.capitalize()
+    raise TypeError(f"{where}: tuple entry type {t!r} cannot be mapped")
+
+
+def _pair(types, where):
+    """A generated entry message for ``(t0, t1, ...)``: named by the entry types (``StrFloat``), fields ``item0``, ``item1``: the library names no entry."""
+    parts = [_entry(t, where) for t in types]
+    name = "".join(n for _, n in parts)
+    ENTRIES[name] = [(ros, f"item{i}", None, "") for i, (ros, _) in enumerate(parts)]
+    return name
+
+
+def map_type(cls, f, hint, mods, where):
+    """(ros type, optional-default marker) from the declaration alone: the annotation, else the ``elements`` entry; anything else raises."""
+    import typing
+    el = f.metadata.get("elements")
+    origin, args = typing.get_origin(hint), typing.get_args(hint)
+    if origin is typing.Union and type(None) in args:         # Optional[X]: absence (None) is the field's default
+        hint = next(a for a in args if a is not type(None))
+        origin, args = typing.get_origin(hint), typing.get_args(hint)
+    if el:
+        k = el["kind"]
+        if k == "vector":
+            return f"{DTYPES[el['dtype']]}[{el['length']}]", None
+        if k == "matrix":
+            n = None if el["rows"] is None else el["rows"] * el["cols"]
+            return (f"{DTYPES[el['dtype']]}[]" if n is None else f"{DTYPES[el['dtype']]}[{n}]"), f"matrix {el['rows'] or 'any number of'} x {el['cols']}, row-major"
+        if k == "square_matrix":
+            sizes = el["size"] if isinstance(el["size"], tuple) else (el["size"],)
+            top = max(sizes) ** 2
+            return (f"{DTYPES[el['dtype']]}[<={top}]" if len(sizes) > 1 else f"{DTYPES[el['dtype']]}[{top}]"), \
+                f"square matrix, row-major, size {' or '.join(map(str, sizes))}"
+        if k == "records":
+            classes = [find_class(mods, n) for n in el["of"]]
+            return _base_of(el["of"], classes) + "[]", None
+        if k == "any_order":
+            return "Order", None
+        if k == "open_mapping":
+            vals = el["values"]
+            if vals == ["any"] or vals == ("any",):
+                return _pair((str, str), where) + "[]", "open mapping: values of any type, carried as text (their type is lost)"
+            if all(v == "float" for v in vals):
+                return _pair((str, float), where) + "[]", None
+        raise TypeError(f"{where}: elements {el!r} cannot be mapped")
+    if hint in SCALARS:
+        if hint is int:
+            return ("uint32" if f.metadata.get("unit") == "id" else "int64"), None
+        return SCALARS[hint], None
+    if origin is tuple and len(args) == 2 and args[1] is Ellipsis:
+        a = args[0]
+        if a in SCALARS:
+            return SCALARS[a] + "[]", None
+        if typing.get_origin(a) is tuple:
+            return _pair(typing.get_args(a), where) + "[]", None
+        if dataclasses.is_dataclass(a):
+            REFERENCED.setdefault(a.__name__, a)
+            return a.__name__ + "[]", None
+    if origin is tuple and args and Ellipsis not in args and all(a is float for a in args):
+        return f"float64[{len(args)}]", None
+    if origin is dict and args == (str, float):
+        return _pair((str, float), where) + "[]", None
+    raise TypeError(f"{where}: annotation {hint!r} has no mapping and no `elements` entry in the library (an MGM gap, not to be worked around here)")
+
+
+ENTRIES = {}
+REFERENCED = {}
+
+
 def field_lines(cls, gaps, skip=("t",), owner=None, unknown=None):
+    import typing
     unknown = UNKNOWN if unknown is None else unknown
     owner_name = owner or cls.__name__
-    """(ros type, name, default text, comment) per field of ``cls``; ``owner`` names the msg for the gap list."""
+    """(ros type, name, default text, comment) per field of ``cls``."""
     out = []
+    hints = typing.get_type_hints(cls)
+    mods = [importlib.import_module(m) for m in MGM_MODULES]
     for f in dataclasses.fields(cls):
         if f.name in skip:
             continue
-        ann = f.type if isinstance(f.type, str) else getattr(f.type, "__name__", str(f.type))
         key = (cls.__name__, f.name)
-        spec = SPECIAL.get(key) or SPECIAL.get(("ManeuverFields", f.name) if f.name in ("start_actions", "end_actions") else key)
-        if spec:
-            ros, default = spec
-        elif ann in SCALARS:
-            ros = SCALARS[ann]
-            if ann == "int":
-                ros = INT_TYPES.get(f.name, "int64")
-            default = None
-            if f.default is not dataclasses.MISSING:
-                d = f.default
-                default = fnum(d) if ann == "float" else ("true" if d is True else "false") if ann == "bool" else (repr(int(d)) if ann == "int" else f'"{d}"')
-                if ann == "str" and d == "":
-                    default = None
-                if ann == "int" and d == 0:
-                    default = None
-                if ann == "float" and f.default == 0.0 and not math.copysign(1, f.default) < 0:
-                    default = None
-            elif f.default_factory is not dataclasses.MISSING:
-                raise TypeError(f"{cls.__name__}.{f.name}: a default factory on a scalar field")
-        else:
-            raise TypeError(f"{cls.__name__}.{f.name}: type {ann!r} has no entry in SPECIAL (add one to the generator)")
-        if ann == "float" and not spec and f.default is not dataclasses.MISSING and f.default == 0.0:
-            default = None
+        where = f"{cls.__name__}.{f.name}"
+        hint = hints[f.name]
+        ros, shape_note = map_type(cls, f, hint, mods, where)
+        default = None
+        dval = f.default if f.default is not dataclasses.MISSING else (f.default_factory() if f.default_factory is not dataclasses.MISSING else dataclasses.MISSING)
+        scalar = hint in SCALARS
+        if scalar and f.default is not dataclasses.MISSING:
+            d = f.default
+            default = fnum(d) if hint is float else ("true" if d is True else "false") if hint is bool else (repr(int(d)) if hint is int else f'"{d}"')
+            if (hint is str and d == "") or (hint is int and d == 0) or (hint is float and d == 0.0 and not math.copysign(1, d) < 0):
+                default = None
+        elif scalar and f.default_factory is not dataclasses.MISSING:
+            raise TypeError(f"{where}: a default factory on a scalar field")
         notes = []
-        if default is not None and ("nan" in default or "inf" in default):
-            # rosidl (C++ and Python typesupport) reads a default with ast.literal_eval, which has no nan or inf: the field becomes optional, empty = the library's default
-            meaning = OPTIONAL.get(key) or OPTIONAL_CLASS.get(cls.__name__) or (OPTIONAL_NAME.get(f.name) if cls.__name__ != "SetLimits" else None)
-            if meaning is None:
-                raise TypeError(f"{cls.__name__}.{f.name}: library default {default} has no entry in OPTIONAL (state what an empty field means)")
-            if ros == "float64":
-                ros = "float64[<=1]"
-                notes.append(f"optional: empty = {meaning}; send one value to set it. MGM default {default}")
-            elif ros.startswith("float64[") and default.startswith("[nan"):
-                n = default.count("nan")
+        optional_array = (dval is None) or (isinstance(dval, np.ndarray) and not np.all(np.isfinite(dval)))
+        if optional_array:                    # None, or an all-NaN vector: empty = the library's default (the ros array is bounded)
+            n = ros[ros.index("[") + 1:-1].lstrip("<=") if "[" in ros and not ros.endswith("[]") else None
+            if n is not None:
                 ros = f"float64[<={n}]"
-                notes.append(f"optional: empty = {meaning}, the library's all-NaN vector; otherwise exactly {n} values (NaN entries allowed). MGM default {default}")
-            else:
-                raise TypeError(f"{cls.__name__}.{f.name}: no optional form for type {ros} with default {default}")
+            shown = "None" if dval is None else "[" + ", ".join("nan" if np.isnan(x) else fnum(x) for x in dval) + "]"
+            meaning = OPTIONAL.get(key) or OPTIONAL_CLASS.get(cls.__name__) or ("none (the library's None)" if dval is None else None)
+            if meaning is None:
+                raise TypeError(f"{where}: library default {shown} has no entry in OPTIONAL (state what an empty field means)")
+            notes.append(f"optional: empty = {meaning}; otherwise the full array. MGM default {shown}")
+            OPTIONAL_FIELDS.append(f"{owner_name}.{f.name}: {ros}, MGM default {shown}, empty = {meaning}")
+        if shape_note:
+            notes.append(shape_note)
+        if scalar and default is not None and ("nan" in default or "inf" in default):
+            meaning = OPTIONAL.get(key) or OPTIONAL_CLASS.get(cls.__name__) or OPTIONAL_NAME.get(f.name)
+            if meaning is None:
+                raise TypeError(f"{where}: library default {default} has no entry in OPTIONAL (state what an empty field means)")
+            ros = "float64[<=1]"
+            notes.append(f"optional: empty = {meaning}; send one value to set it. MGM default {default}")
             OPTIONAL_FIELDS.append(f"{owner_name}.{f.name}: {ros}, MGM default {default}, empty = {meaning}")
             default = None
         meta = f.metadata
@@ -270,10 +304,9 @@ def field_lines(cls, gaps, skip=("t",), owner=None, unknown=None):
         for what, val in (("unit", unit), ("frame", frame)):
             if val in ("unknown", "mixed", "record"):
                 unknown.append(f"{owner_name}.{f.name}: {what} {val}")
-        if ros in NUMERIC or ros.startswith("float64[<=") :
-            if not unit and not frame and "unit" not in meta:
-                notes.append("GAP: unit and frame not given by the library")
-                gaps.append(f"{owner_name}.{f.name}: unit and frame")
+        if "unit" not in meta:
+            notes.append("GAP: unit and frame not given by the library")
+            gaps.append(f"{owner_name}.{f.name}: unit and frame")
         out.append((ros, f.name, default, "; ".join(notes)))
     return out
 
@@ -286,9 +319,9 @@ def render_fields(fields, with_defaults=True):
     return lines
 
 
-def msg_text(name, doc, fields, library, preamble=()):
+def msg_text(name, doc, fields, library, preamble=(), helper=False):
     lines = [f"# {name}: generated by tools/generate_interfaces.py from more_generic_models {library}. Do not edit."]
-    lines += comment(doc) + (["#"] + comment(FRAME_NOTE) if name not in HELPERS else []) + list(preamble)
+    lines += comment(doc) + (["#"] + comment(FRAME_NOTE) if not helper else []) + list(preamble)
     lines += render_fields(fields)
     return "\n".join(lines) + "\n"
 
@@ -316,17 +349,12 @@ def generate() -> dict:
     UNKNOWN.clear()
     OPTIONAL_FIELDS.clear()
 
-    for name, (doc, fields) in HELPERS.items():
-        files[f"msg/{name}.msg"] = msg_text(name, doc, fields, library)
-
-    # PartAction (a record of the shared order base, not an order itself)
-    part_action = find_class(mods, "PartAction")
-    files["msg/PartAction.msg"] = msg_text("PartAction", doc_of(part_action), field_lines(part_action, gaps, skip=()), library)
-
+    ENTRIES.clear()
+    REFERENCED.clear()
     order_fields = {}
     for name, cls in {**orders, **maneuvers}.items():
-        if name == "ValidateOrder":
-            continue
+        if any(f.metadata.get("elements", {}).get("kind") == "any_order" for f in dataclasses.fields(cls)):
+            continue                      # an order that holds any order is a service (ValidateOrder), not a member of Order
         order_fields[name] = field_lines(cls, gaps, skip=())
         files[f"msg/{name}.msg"] = msg_text(name, doc_of(cls), order_fields[name], library)
 
@@ -340,17 +368,22 @@ def generate() -> dict:
                  ("float64", "t", None, "unit: s; the sample instant on the scenario clock, exactly")]
         files[f"msg/{name}.msg"] = msg_text(name, doc_of(cls), stamp + extra + flds, library)
 
+    done = set(files)
+    while any(f"msg/{n}.msg" not in done for n in REFERENCED):          # records the fields hold (PartAction)
+        for n, c in sorted(REFERENCED.items()):
+            if f"msg/{n}.msg" not in done:
+                files[f"msg/{n}.msg"] = msg_text(n, doc_of(c), field_lines(c, gaps, skip=()), library)
+                done.add(f"msg/{n}.msg")
+    for n, flds in sorted(ENTRIES.items()):
+        files[f"msg/{n}.msg"] = msg_text(n, "An entry of a library tuple or mapping; the library names no entry field: item0, item1, ... in its order.", flds, library, helper=True)
+
     def union(uname, doc, members):
         flds = [("string", "kind", None, "the class name of the member that is set")] + [(f"{m}[<=1]", snake(m), None, "") for m in members]
         files[f"msg/{uname}.msg"] = msg_text(uname, doc, flds, library)
 
-    union("Maneuver", "One manoeuvre of a plan: exactly one member is set, named by kind (ROS interfaces cannot be recursive or polymorphic).", list(maneuvers))
+    union(_base_of(list(maneuvers), list(maneuvers.values())), "One manoeuvre of a plan: exactly one member is set, named by kind (ROS interfaces cannot be recursive or polymorphic).", list(maneuvers))
     union("Order", "One order: exactly one member is set, named by kind. ValidateOrder is a service of its own (an order that holds any order cannot be a member).",
-          [n for n in order_fields if n != "ValidateOrder"])
-
-    for name, (doc, fields) in OPTIONAL_HELPERS.items():
-        if any(ln.startswith(name + "[]") for txt in files.values() for ln in txt.splitlines()):
-            files[f"msg/{name}.msg"] = msg_text(name, doc, fields, library)
+          list(order_fields))
 
     srv_head = "# {n}: generated by tools/generate_interfaces.py from more_generic_models {v}. Do not edit.\n"
     files["srv/SendOrder.srv"] = (srv_head.format(n="SendOrder", v=library) +

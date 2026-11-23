@@ -22,12 +22,12 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string[] orders  # unit: id
 string[] reports  # unit: id
 string[] entry_levels  # unit: enum
-KeyValue[] periods  # unit: mixed; ((parameter name, period in s), ...)
-LimitBound[] limits  # unit: mixed; ((field, minimum, maximum), ...) in the limit field's own unit
+StrFloat[] periods  # unit: mixed; ((parameter name, period in s), ...)
+StrFloatFloat[] limits  # unit: mixed; ((field, minimum, maximum), ...) in the limit field's own unit
 float64[<=1] origin_lat  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: deg; frame: geodetic; latitude of the scenario origin the NED positions of every order and report refer to; NaN: the scenario states none
 float64[<=1] origin_lon  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: deg; frame: geodetic; longitude of the scenario origin; NaN: not stated
 float64[<=1] origin_alt  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: m; frame: geodetic; height of the scenario origin above the WGS-84 ellipsoid, positive up; the NED down of the origin is 0, and a point at height h above the ellipsoid has down of about origin_alt - h; NaN: not stated
 float64[<=1] deadman_timeout  # optional: empty = none (the vehicle has no dead-man timeout); send one value to set it. MGM default inf; unit: s; seconds without an order for the vehicle after which its dead-man rule runs; an order for a payload, a limit or a question does not count; the rule is armed only while a plan runs (plan family) or in every mode but DRIFT (surface family); inf: the vehicle has none
 bool abort_latches false  # unit: flag; True: after an Abort the vehicle stays in its error mode until a ClearError order (the plan family); False: it drifts and takes the next order (the surface family), or the error clears itself after a configured time
-EntryLevelOrder[] entry_level_orders  # unit: record; ((entry level, order name), ...): for every level of entry_levels the orders of this vehicle that command it
+StrStr[] entry_level_orders  # unit: record; ((entry level, order name), ...): for every level of entry_levels the orders of this vehicle that command it
 string speed_reference  # unit: enum; how this vehicle's chain uses a commanded speed: over_ground (the speed error is taken against the estimate's speed over ground), open_loop (the commanded speed is mapped to a shaft speed and no speed is regulated; the speed the vehicle makes through the water depends on that mapping and on the plant), through_water (reserved for a chain that regulates the speed relative to the water; no chain of the package does today) or empty (the controller uses no commanded speed, has not declared its use of it, or none is bound)

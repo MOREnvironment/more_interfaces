@@ -7,5 +7,5 @@
 # north clockwise, time in s on the scenario clock.
 string plan_id  # unit: id
 Maneuver[] maneuvers  # unit: record; manoeuvre orders
-Transition[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
+StrStr[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
 string start_maneuver_id  # unit: id

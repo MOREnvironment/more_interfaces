@@ -1,6 +1,6 @@
 # Library defaults that a rosidl .msg cannot carry (NaN, inf): each such field is an optional field (a bounded array of at most one value, or at most
 # N for a vector), empty = the library's default. Generated.
-# more_generic_models 0.1.0: 64 entries.
+# more_generic_models 0.1.0: 65 entries.
 Brake.duration: float64[<=1], MGM default inf, empty = never ends by time
 Brake.timeout: float64[<=1], MGM default inf, empty = no timeout
 CapabilitiesReport.deadman_timeout: float64[<=1], MGM default inf, empty = none (the vehicle has no dead-man timeout)
@@ -32,6 +32,7 @@ LinkReport.arrival: float64[<=1], MGM default nan, empty = the link has none
 LinkReport.snr_db: float64[<=1], MGM default nan, empty = the link has none
 Loiter.duration: float64[<=1], MGM default inf, empty = never ends by time
 Loiter.timeout: float64[<=1], MGM default inf, empty = no timeout
+NavigationUncertaintyReport.covariance: float64[<=144], MGM default None, empty = the navigation gives none
 NavigationUncertaintyReport.var_p: float64[<=1], MGM default nan, empty = the navigation gives none
 NavigationUncertaintyReport.var_pitch: float64[<=1], MGM default nan, empty = the navigation gives none
 NavigationUncertaintyReport.var_q: float64[<=1], MGM default nan, empty = the navigation gives none

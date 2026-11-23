@@ -10,5 +10,5 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string name  # unit: id
 string activation  # unit: enum
 string health "ok"  # unit: enum
-KeyValue[] settings  # unit: record; ((name str, value float), ...) in force; the unit of each value is the payload setting's own
+StrFloat[] settings  # unit: record; ((name str, value float), ...) in force; the unit of each value is the payload setting's own
 string fault  # unit: text

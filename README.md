@@ -3,12 +3,12 @@
 ROS 2 messages, services and one action for the order-and-report API of a vehicle (ament_cmake, rosidl). The package is named by function: a
 simulation bridge and a bridge to a real vehicle use the same types, so autonomy code runs unchanged on either.
 
-## Contents (63 messages, 4 services, 1 action)
+## Contents (60 messages, 4 services, 1 action)
 
 - 27 order messages (11 manoeuvres, 16 other orders) and 25 report messages, one per class of the library, field names unchanged.
   Reports carry `std_msgs/Header header`, `uint64 stream_seq` (the bridge's counter across all report types), `float64 t` (the exact sample instant), then
   the library's fields. `EstimatedStateReport` adds `child_frame_id`.
-- Helper records: `KeyValue`, `Waypoint`, `Transition`, `PlaneVertex`, `LimitBound`, `Matrix` (rows = 0: none), `PartAction`.
+- Records and entries: `PartAction`; every tuple entry of the library becomes a generated message named by its entry types (`StrFloat`, `StrStr`, `FloatFloat`, `StrFloatFloat`) with fields `item0`, `item1`, ... because the library names no entry field. A matrix is a flat row-major `float64` array (`FollowPath.points`: 4 columns; the 12 x 12 covariance: `float64[<=144]`, empty = none).
 - Unions: `Maneuver` and `Order` (a `kind` string and one `<Type>[<=1]` member per class, because rosidl has no polymorphism or recursion).
   `ValidateOrder` holds any order, so it is a service, not a member of `Order`.
 - Services: `SendOrder`, `CheckOrder`, `ValidateOrder` (all `Order order`), `Describe`. Action: `ExecutePlan` (definition only).
@@ -36,12 +36,11 @@ listed there as missing.
     python tools/generate_interfaces.py           # write
     python tools/generate_interfaces.py --check   # exit 1 when a committed file differs
 
-Type mapping: float -> float64, int -> int32 (`index`, `count`) / uint32 (`order_id`) / int64, bool -> bool, str -> string, with the library's default
-(a NaN or inf default makes the field optional, see below).
-Arrays, tuples, dicts and nested records are mapped by an explicit table in the generator (`SPECIAL`); a field of a reachable class that is neither a
-scalar nor in the table stops the generator.
+Type mapping, from the library's declaration alone: float -> float64, int -> uint32 when its unit is `id`, else int64, bool -> bool, str -> string, with the library's default
+(a NaN or inf default makes the field optional, see below). Tuples, dicts and records are read from the field's annotation, arrays from its `elements` entry.
+A field that is neither stops the generator.
 
-Generated from: more_generic_models 0.1.0, develop at commit a00c281c (field metadata, capabilities additions, `KeepAlive`, plan identity). The generator is run with an unpacked `git archive` of that commit first
+Generated from: more_generic_models 0.1.0, develop at commit 5593fef8 (field metadata, exact field annotations and `elements`, `order_types()`). The generator is run with an unpacked `git archive` of that commit first
 on the path, so the checkout and the environment of the library are untouched:
 
     git -C <more_generic_models> archive <commit> | tar -x -C <dir>
@@ -64,9 +63,9 @@ For a ROS 2 client (Python), `SetLimits` with an unchanged depth limit and a new
 and `StationKeeping(x, y)` with no `timeout` is `timeout = []` (no timeout); `timeout = [120.0]` stops it after 120 s. A bridge reads empty as the library's
 default and one element as that value; a report field that is empty means NaN (unknown).
 
-## Hand table the generator still carries
+## Nothing by hand for shapes
 
-MGM gives no machine-readable shape for tuple fields, so `SPECIAL` in the generator names them (`KeyValue`, `LimitBound`, `EntryLevelOrder`, `Waypoint`, `Transition`, `PlaneVertex`, `Matrix`): `CapabilitiesReport.periods`, `.limits`, `.entry_level_orders`, the `settings` and `covariance` fields, `FollowPath.points`, `parts_in_error` and others. Only the `doc` text describes their entries.
+The generator reads only the library's annotations, the `elements` entry of the field metadata and `base.order_types()`; a field it cannot map stops it. By hand remain: what an empty optional field means (`OPTIONAL` in the generator: the library does not declare it per field), the services and the action (bridge design), and the report stamp fields. `PartAction.settings` is an open mapping with values of any type: it is `StrStr[]` with the value as text, so the value's type is lost (open contract item).
 
 ## Tests (`colcon test`, or `pytest tests/` with the library installed)
 

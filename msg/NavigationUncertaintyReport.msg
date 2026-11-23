@@ -22,4 +22,4 @@ float64[<=1] var_w  # optional: empty = the navigation gives none; send one valu
 float64[<=1] var_p  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
 float64[<=1] var_q  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
 float64[<=1] var_r  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
-Matrix covariance  # unit: mixed; frame: ned_body_frd; numpy array of shape (12, 12), the covariance of [x y z phi theta psi u v w p q r]: m^2, rad^2, m^2/s^2, rad^2/s^2 on the diagonal, the products of the units off it; None unless covariance_full
+float64[<=144] covariance  # optional: empty = the navigation gives none; otherwise the full array. MGM default None; square matrix, row-major, size 12; unit: mixed; frame: ned_body_frd; numpy array of shape (12, 12), the covariance of [x y z phi theta psi u v w p q r]: m^2, rad^2, m^2/s^2, rad^2/s^2 on the diagonal, the products of the units off it; None unless covariance_full

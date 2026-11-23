@@ -8,5 +8,5 @@ string maneuver_id  # unit: id
 float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; unit: s
 PartAction[] start_actions  # unit: record; PartAction records
 PartAction[] end_actions  # unit: record; PartAction records
-Waypoint[] points  # unit: mixed; frame: ned; [[x north m, y east m, z m in ``z_mode``, speed m/s], ...]
+float64[] points  # matrix any number of x 4, row-major; unit: mixed; frame: ned; [[x north m, y east m, z m in ``z_mode``, speed m/s], ...]
 string z_mode "depth"  # unit: enum

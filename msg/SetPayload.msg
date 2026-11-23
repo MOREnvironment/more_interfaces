@@ -6,4 +6,4 @@
 # north clockwise, time in s on the scenario clock.
 string name  # unit: id
 bool active true  # unit: flag
-KeyValue[] settings  # unit: record; name (str) -> value (a number, taken as float); the unit of each value is the payload setting's own
+StrFloat[] settings  # unit: record; name (str) -> value (a number, taken as float); the unit of each value is the payload setting's own

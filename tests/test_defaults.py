@@ -39,7 +39,7 @@ def _nonfinite(generator):
     for name, cls in _classes(generator).items():
         for f in dataclasses.fields(cls):
             d = _library_default(f)
-            if isinstance(d, float) and not math.isfinite(d) or (isinstance(d, np.ndarray) and not np.all(np.isfinite(d))):
+            if isinstance(d, float) and not math.isfinite(d) or (isinstance(d, np.ndarray) and not np.all(np.isfinite(d))) or f.default is None:
                 yield name, f, d
 
 
@@ -52,6 +52,8 @@ def _msg_line(generator, name, field):
 
 
 def _text(d):
+    if d is None:
+        return "None"
     arr = np.atleast_1d(np.asarray(d, dtype=float))
     one = "nan" if np.isnan(arr[0]) else ("inf" if arr[0] > 0 else "-inf")
     return one if np.ndim(d) == 0 else "[" + ", ".join(one for _ in arr) + "]"
@@ -64,7 +66,9 @@ def test_every_nan_and_inf_default_is_an_optional_field_with_the_libraries_defau
         line = _msg_line(generator, name, f.name)
         decl, _, note = line.partition("#")
         n += 1
-        if np.ndim(d) == 0:
+        if d is None:
+            assert decl.split()[0].startswith("float64[<="), f"{name}.{f.name} is not optional: {line}"
+        elif np.ndim(d) == 0:
             assert decl.split()[0] == "float64[<=1]", f"{name}.{f.name} is not optional: {line}"
         else:
             assert decl.split()[0] == f"float64[<={len(d)}]", f"{name}.{f.name}: {line}"
@@ -73,8 +77,8 @@ def test_every_nan_and_inf_default_is_an_optional_field_with_the_libraries_defau
         stated = re.search(r"MGM default (\S.*?)(;|$)", note)
         assert stated and stated.group(1).strip() == _text(d), f"{name}.{f.name}: documented default {stated and stated.group(1)!r} != MGM's {_text(d)!r}"
         assert f"{name}.{f.name}: {decl.split()[0]}, MGM default {_text(d)}," in listed, f"{name}.{f.name} is not in the list"
-        kinds.add("nan" if np.any(np.isnan(d)) else "inf")
-    assert kinds == {"nan", "inf"} and n >= 61
+        kinds.add("none" if d is None else "nan" if np.any(np.isnan(d)) else "inf")
+    assert kinds == {"nan", "inf", "none"} and n >= 61
     assert listed.count("MGM default") == n, "the list has entries the library no longer has"
 
 

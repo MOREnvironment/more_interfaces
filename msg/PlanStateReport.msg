@@ -20,8 +20,8 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string state  # unit: enum
 string plan_id  # unit: id
 string maneuver_id  # unit: id
-int32 index  # unit: 1
-int32 count  # unit: 1
+int64 index  # unit: 1
+int64 count  # unit: 1
 float64 progress  # unit: 1
 string outcome  # unit: enum
 string previous_plan_id  # unit: id

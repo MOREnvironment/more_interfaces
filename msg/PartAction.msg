@@ -6,4 +6,4 @@
 # north clockwise, time in s on the scenario clock.
 string part  # unit: id
 bool active true  # unit: flag
-KeyValue[] settings  # unit: record; name (str) -> value (any; kept as given, not read or checked: a manoeuvre's part actions have no effect yet)
+StrStr[] settings  # open mapping: values of any type, carried as text (their type is lost); unit: record; name (str) -> value (any; nothing reads it, a manoeuvre's part actions have no effect yet; the stored and queried plan copies convert numbers to float)

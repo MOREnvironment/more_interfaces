@@ -13,4 +13,4 @@ string child_frame_id  # frame of the body vectors, <vehicle>/base_link_fsd (FRD
 float64[6] eta  # unit: mixed; frame: ned; [north, east, down (m, depth positive down), roll, pitch, yaw (rad)]
 float64[6] nu  # unit: mixed; frame: body_frd; [u, v, w (m/s), p, q, r (rad/s)]
 float64[<=1] altitude  # optional: empty = no valid measurement; send one value to set it. MGM default nan; unit: m; frame: seabed_up
-float64[<=3] velocity_ned  # optional: empty = unknown, the library's all-NaN vector; otherwise exactly 3 values (NaN entries allowed). MGM default [nan, nan, nan]; unit: m/s; frame: ned
+float64[<=3] velocity_ned  # optional: empty = unknown; otherwise the full array. MGM default [nan, nan, nan]; unit: m/s; frame: ned

@@ -13,4 +13,4 @@ float64[<=1] max_altitude  # optional: empty = unchanged (the limit is left as i
 float64[<=1] min_speed  # optional: empty = unchanged (the limit is left as it is); send one value to set it. MGM default nan; unit: m/s; frame: ned
 float64[<=1] max_speed  # optional: empty = unchanged (the limit is left as it is); send one value to set it. MGM default nan; unit: m/s; frame: ned
 float64[<=1] max_vertical_rate  # optional: empty = unchanged (the limit is left as it is); send one value to set it. MGM default nan; unit: m/s; frame: ned; magnitude of the vertical rate (down positive in NED)
-PlaneVertex[] region  # unit: m; frame: ned; vertices ((north, east), ...) of a closed polygon (not settable)
+FloatFloat[] region  # unit: m; frame: ned; vertices ((north, east), ...) of a closed polygon (not settable)

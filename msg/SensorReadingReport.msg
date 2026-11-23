@@ -15,8 +15,8 @@ uint64 stream_seq  # publication counter per vehicle across all report types (re
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string sensor  # unit: enum
 string kind  # unit: enum
-KeyValue[] values  # unit: mixed; frame: reading; named numbers, unit per key and kind: ``sensor_readings.py``
-Matrix covariance  # unit: mixed; frame: reading; numpy array of shape (n, n), the reading's R for its n rows, in the squared units of the rows (shapes per kind: sensor_readings.py); None: none
+StrFloat[] values  # unit: mixed; frame: reading; named numbers, unit per key and kind: ``sensor_readings.py``
+float64[<=9] covariance  # square matrix, row-major, size 1 or 2 or 3; unit: mixed; frame: reading; numpy array of shape (n, n), the reading's R for its n rows, in the squared units of the rows (shapes per kind: sensor_readings.py); None: none
 string frame  # unit: text; the reading's own frame word
 bool valid  # unit: flag
 float64 measured_at  # unit: s
