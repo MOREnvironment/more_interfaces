@@ -11,8 +11,8 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-uint32 order_id
-string order_kind
-bool accepted
-string reason
-string code
+uint32 order_id  # unit: id
+string order_kind  # unit: enum
+bool accepted  # unit: flag
+string reason  # unit: text
+string code  # unit: enum

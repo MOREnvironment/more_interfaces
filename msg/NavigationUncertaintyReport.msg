@@ -10,16 +10,16 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64 var_north  # GAP: unit and frame not given by the library
-float64 var_east  # GAP: unit and frame not given by the library
-float64 var_down  # GAP: unit and frame not given by the library
-float64 var_yaw  # GAP: unit and frame not given by the library
-float64[<=1] var_roll  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_pitch  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_u  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_v  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_w  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_p  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_q  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] var_r  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-Matrix covariance  # GAP: unit and frame not given by the library
+float64 var_north  # unit: m^2; frame: ned
+float64 var_east  # unit: m^2; frame: ned
+float64 var_down  # unit: m^2; frame: ned
+float64 var_yaw  # unit: rad^2; frame: ned
+float64[<=1] var_roll  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2; frame: ned
+float64[<=1] var_pitch  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2; frame: ned
+float64[<=1] var_u  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: m^2/s^2; frame: body_frd
+float64[<=1] var_v  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: m^2/s^2; frame: body_frd
+float64[<=1] var_w  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: m^2/s^2; frame: body_frd
+float64[<=1] var_p  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
+float64[<=1] var_q  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
+float64[<=1] var_r  # optional: empty = the navigation gives none; send one value to set it. MGM default nan; unit: rad^2/s^2; frame: body_frd
+Matrix covariance  # unit: mixed; frame: ned_body_frd; numpy array of shape (12, 12), the covariance of [x y z phi theta psi u v w p q r]: m^2, rad^2, m^2/s^2, rad^2/s^2 on the diagonal, the products of the units off it; None unless covariance_full

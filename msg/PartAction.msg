@@ -4,6 +4,6 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string part
-bool active true
-KeyValue[] settings  # GAP: unit and frame not given by the library
+string part  # unit: id
+bool active true  # unit: flag
+KeyValue[] settings  # unit: record; name (str) -> value (any; kept as given, not read or checked: a manoeuvre's part actions have no effect yet)

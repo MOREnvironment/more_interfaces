@@ -7,8 +7,8 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string name
-string activation
-string health "ok"
-KeyValue[] settings  # GAP: unit and frame not given by the library
-string fault
+string name  # unit: id
+string activation  # unit: enum
+string health "ok"  # unit: enum
+KeyValue[] settings  # unit: record; ((name str, value float), ...) in force; the unit of each value is the payload setting's own
+string fault  # unit: text

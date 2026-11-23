@@ -7,14 +7,14 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string maneuver_id
-float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
-PartAction[] start_actions
-PartAction[] end_actions
-float64 x  # GAP: unit and frame not given by the library
-float64 y  # GAP: unit and frame not given by the library
-float64[<=1] z  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] radius  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] speed  # optional: empty = not given (a vehicle that needs it refuses the order and names the field); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-string z_mode "depth"
-float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
+string maneuver_id  # unit: id
+float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; unit: s
+PartAction[] start_actions  # unit: record; PartAction records
+PartAction[] end_actions  # unit: record; PartAction records
+float64 x  # unit: m; frame: ned
+float64 y  # unit: m; frame: ned
+float64[<=1] z  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without); send one value to set it. MGM default nan; unit: m; frame: z_mode
+float64[<=1] radius  # optional: empty = not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without); send one value to set it. MGM default nan; unit: m
+float64[<=1] speed  # optional: empty = not given (a vehicle that needs it refuses the order and names the field); send one value to set it. MGM default nan; unit: m/s; frame: unknown; commanded speed; over ground or through water is stated per vehicle by CapabilitiesReport.speed_reference
+string z_mode "depth"  # unit: enum
+float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; unit: s

@@ -12,12 +12,12 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string plan_id
-bool stored
-string[] maneuver_ids
-bool running false
-string checksum
-Maneuver[] maneuvers
-Transition[] transitions
-string start_maneuver_id
-uint32 order_id
+string plan_id  # unit: id
+bool stored  # unit: flag
+string[] maneuver_ids  # unit: id
+bool running false  # unit: flag
+string checksum  # unit: id
+Maneuver[] maneuvers  # unit: record; copies of the stored manoeuvre orders
+Transition[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
+string start_maneuver_id  # unit: id
+uint32 order_id  # unit: id

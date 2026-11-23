@@ -5,17 +5,17 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string maneuver_id
-float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
-PartAction[] start_actions
-PartAction[] end_actions
-float64 x  # GAP: unit and frame not given by the library
-float64 y  # GAP: unit and frame not given by the library
-float64 z  # GAP: unit and frame not given by the library
-float64 radius  # GAP: unit and frame not given by the library
-float64 speed  # GAP: unit and frame not given by the library
-string z_mode "depth"
-bool use_current_position false
-bool hold false
-float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
-bool end_at_surface false
+string maneuver_id  # unit: id
+float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; unit: s
+PartAction[] start_actions  # unit: record; PartAction records
+PartAction[] end_actions  # unit: record; PartAction records
+float64 x  # unit: m; frame: ned
+float64 y  # unit: m; frame: ned
+float64 z  # unit: m; frame: z_mode
+float64 radius  # unit: m
+float64 speed  # unit: m/s; frame: unknown; commanded speed; over ground or through water is stated per vehicle by CapabilitiesReport.speed_reference
+string z_mode "depth"  # unit: enum
+bool use_current_position false  # unit: flag
+bool hold false  # unit: flag
+float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; unit: s
+bool end_at_surface false  # unit: flag

@@ -5,15 +5,29 @@
 # configuration's ``entry_levels``; the twin takes every level a client may order, a client checks this list for what the modelled
 # vehicle has), ``periods`` ((parameter name, period in s), ...) of every periodic report, a sensor reading as
 # ``reading_period:<sensor>``, and ``limits`` ((field, minimum, maximum), ...) the operating limits that ``SetLimits`` can change
-# on this vehicle.
+# on this vehicle. ``origin_lat``, ``origin_lon``, ``origin_alt`` (deg, deg, m above the WGS-84 ellipsoid) the geodetic origin of
+# the scenario the NED positions refer to (NaN: the scenario states none); ``deadman_timeout`` (s) the time without an order for
+# the vehicle (not a question or a payload or limit order) after which the dead-man rule runs, while it is armed (inf: there is
+# none); ``abort_latches`` whether an ``Abort`` leaves the vehicle in its error mode until a ``ClearError`` (the plan family; the
+# surface family drifts and takes the next order); ``entry_level_orders`` ((level, order name), ...) the orders that command each
+# level of ``entry_levels``, from the table ``ENTRY_LEVELS`` of the base, those this vehicle takes; ``speed_reference`` how the
+# ``speed`` of every order is used (``over_ground``, ``open_loop``, ``through_water`` reserved, empty: not used or no controller
+# bound), read from the bound controller.
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string[] orders
-string[] reports
-string[] entry_levels
-KeyValue[] periods  # GAP: unit and frame not given by the library
-LimitBound[] limits  # GAP: unit and frame not given by the library
+string[] orders  # unit: id
+string[] reports  # unit: id
+string[] entry_levels  # unit: enum
+KeyValue[] periods  # unit: mixed; ((parameter name, period in s), ...)
+LimitBound[] limits  # unit: mixed; ((field, minimum, maximum), ...) in the limit field's own unit
+float64[<=1] origin_lat  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: deg; frame: geodetic; latitude of the scenario origin the NED positions of every order and report refer to; NaN: the scenario states none
+float64[<=1] origin_lon  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: deg; frame: geodetic; longitude of the scenario origin; NaN: not stated
+float64[<=1] origin_alt  # optional: empty = the scenario states none; send one value to set it. MGM default nan; unit: m; frame: geodetic; height of the scenario origin above the WGS-84 ellipsoid, positive up; the NED down of the origin is 0, and a point at height h above the ellipsoid has down of about origin_alt - h; NaN: not stated
+float64[<=1] deadman_timeout  # optional: empty = none (the vehicle has no dead-man timeout); send one value to set it. MGM default inf; unit: s; seconds without an order for the vehicle after which its dead-man rule runs; an order for a payload, a limit or a question does not count; the rule is armed only while a plan runs (plan family) or in every mode but DRIFT (surface family); inf: the vehicle has none
+bool abort_latches false  # unit: flag; True: after an Abort the vehicle stays in its error mode until a ClearError order (the plan family); False: it drifts and takes the next order (the surface family), or the error clears itself after a configured time
+EntryLevelOrder[] entry_level_orders  # unit: record; ((entry level, order name), ...): for every level of entry_levels the orders of this vehicle that command it
+string speed_reference  # unit: enum; how this vehicle's chain uses a commanded speed: over_ground (the speed error is taken against the estimate's speed over ground), open_loop (the commanded speed is mapped to a shaft speed and no speed is regulated; the speed the vehicle makes through the water depends on that mapping and on the plant), through_water (reserved for a chain that regulates the speed relative to the water; no chain of the package does today) or empty (the controller uses no commanded speed, has not declared its use of it, or none is bound)

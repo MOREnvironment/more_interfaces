@@ -4,9 +4,9 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string maneuver_id
-float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; GAP: unit and frame not given by the library
-PartAction[] start_actions
-PartAction[] end_actions
-Waypoint[] points  # GAP: unit and frame not given by the library
-string z_mode "depth"
+string maneuver_id  # unit: id
+float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; unit: s
+PartAction[] start_actions  # unit: record; PartAction records
+PartAction[] end_actions  # unit: record; PartAction records
+Waypoint[] points  # unit: mixed; frame: ned; [[x north m, y east m, z m in ``z_mode``, speed m/s], ...]
+string z_mode "depth"  # unit: enum

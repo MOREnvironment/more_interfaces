@@ -10,10 +10,10 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64[<=1] max_depth  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] min_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] max_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] min_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] max_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] max_vertical_rate  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-PlaneVertex[] region  # GAP: unit and frame not given by the library
+float64[<=1] max_depth  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m; frame: depth_down
+float64[<=1] min_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m; frame: seabed_up
+float64[<=1] max_altitude  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m; frame: seabed_up
+float64[<=1] min_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m/s; frame: ned
+float64[<=1] max_speed  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m/s; frame: ned
+float64[<=1] max_vertical_rate  # optional: empty = none (no monitor enforces this limit); send one value to set it. MGM default nan; unit: m/s; frame: ned; magnitude of the vertical rate (down positive in NED)
+PlaneVertex[] region  # unit: m; frame: ned; vertices ((north, east), ...) of a closed polygon

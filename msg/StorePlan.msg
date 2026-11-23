@@ -5,7 +5,7 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string plan_id
-Maneuver[] maneuvers
-Transition[] transitions
-string start_maneuver_id
+string plan_id  # unit: id
+Maneuver[] maneuvers  # unit: record; manoeuvre orders
+Transition[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
+string start_maneuver_id  # unit: id

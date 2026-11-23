@@ -3,7 +3,7 @@
 ROS 2 messages, services and one action for the order-and-report API of a vehicle (ament_cmake, rosidl). The package is named by function: a
 simulation bridge and a bridge to a real vehicle use the same types, so autonomy code runs unchanged on either.
 
-## Contents (61 messages, 4 services, 1 action)
+## Contents (63 messages, 4 services, 1 action)
 
 - 27 order messages (11 manoeuvres, 16 other orders) and 25 report messages, one per class of the library, field names unchanged.
   Reports carry `std_msgs/Header header`, `uint64 stream_seq` (the bridge's counter across all report types), `float64 t` (the exact sample instant), then
@@ -41,8 +41,7 @@ Type mapping: float -> float64, int -> int32 (`index`, `count`) / uint32 (`order
 Arrays, tuples, dicts and nested records are mapped by an explicit table in the generator (`SPECIAL`); a field of a reachable class that is neither a
 scalar nor in the table stops the generator.
 
-Generated from: more_generic_models 0.1.0, develop at commit ea61da2b (contains plan identity: `order_id` on `VehicleModeReport`, `ControlModeReport` and
-`StopPlan`). Metadata is not in that commit yet, so the unit/frame fields say `GAP`. The generator is run with an unpacked `git archive` of that commit first
+Generated from: more_generic_models 0.1.0, develop at commit a00c281c (field metadata, capabilities additions, `KeepAlive`, plan identity). The generator is run with an unpacked `git archive` of that commit first
 on the path, so the checkout and the environment of the library are untouched:
 
     git -C <more_generic_models> archive <commit> | tar -x -C <dir>
@@ -65,12 +64,9 @@ For a ROS 2 client (Python), `SetLimits` with an unchanged depth limit and a new
 and `StationKeeping(x, y)` with no `timeout` is `timeout = []` (no timeout); `timeout = [120.0]` stops it after 120 s. A bridge reads empty as the library's
 default and one element as that value; a report field that is empty means NaN (unknown).
 
-## What changes when the next library branches land
+## Hand table the generator still carries
 
-`api-field-metadata` gives every field `unit`, `frame` and `doc`: the `GAP` markers go, the comments carry unit / frame / note, `doc/metadata_gaps.txt` lists
-what the library states as unknown. `api-capabilities` adds to `CapabilitiesReport` `origin_lat`, `origin_lon`, `origin_alt` (NaN default: optional),
-`deadman_timeout` (inf: optional, empty = no dead-man timeout), `abort_latches` (bool) and `entry_level_orders` (a list of the new pair message
-`EntryLevelOrder {level, order}`, emitted only when the library has the field). Regenerate with the new commit and commit the result.
+MGM gives no machine-readable shape for tuple fields, so `SPECIAL` in the generator names them (`KeyValue`, `LimitBound`, `EntryLevelOrder`, `Waypoint`, `Transition`, `PlaneVertex`, `Matrix`): `CapabilitiesReport.periods`, `.limits`, `.entry_level_orders`, the `settings` and `covariance` fields, `FollowPath.points`, `parts_in_error` and others. Only the `doc` text describes their entries.
 
 ## Tests (`colcon test`, or `pytest tests/` with the library installed)
 

@@ -4,5 +4,5 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string reason "abort order"
-string source
+string reason "abort order"  # unit: text
+string source  # unit: id

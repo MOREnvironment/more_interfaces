@@ -11,12 +11,12 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-bool received
-string target
-string observer
-float64[<=1] latitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] longitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] depth  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] accuracy  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] measurement_time  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] range  # optional: empty = the fix gives none; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+bool received  # unit: flag
+string target  # unit: id
+string observer  # unit: id
+float64[<=1] latitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: deg; frame: geodetic
+float64[<=1] longitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: deg; frame: geodetic
+float64[<=1] depth  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m; frame: depth_down
+float64[<=1] accuracy  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m
+float64[<=1] measurement_time  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: s
+float64[<=1] range  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m

@@ -10,8 +10,8 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string part
-string kind
-string health
-string text_kind
-float64[<=1] value  # optional: empty = none (the monitor judged no number); send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+string part  # unit: id
+string kind  # unit: enum
+string health  # unit: enum
+string text_kind  # unit: enum
+float64[<=1] value  # optional: empty = none (the monitor judged no number); send one value to set it. MGM default nan; unit: mixed; m for a depth or an altitude, s for a time, m/s for a speed or a rate, as the monitor's text_kind says

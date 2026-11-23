@@ -8,7 +8,7 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string actuator
-string name
-string unit
-float64 value  # GAP: unit and frame not given by the library
+string actuator  # unit: id
+string name  # unit: id
+string unit  # unit: text
+float64 value  # unit: mixed; in the unit the field ``unit`` states

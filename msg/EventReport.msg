@@ -9,7 +9,7 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string level
-string part
-string text_kind
-string text
+string level  # unit: enum
+string part  # unit: id
+string text_kind  # unit: enum
+string text  # unit: text

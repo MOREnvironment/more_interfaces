@@ -1,165 +1,60 @@
 # Fields whose unit or frame the library does not state (marked GAP in the .msg comments), and fields whose unit or frame the library itself
 # states as unknown, mixed or record (written as given in the .msg comments). Generated.
-# more_generic_models 0.1.0: 159 missing, 0 stated unknown by the library.
+# more_generic_models 0.1.0: 0 missing, 54 stated unknown by the library.
 # missing (the library gives no metadata for the field):
-ActuatorStateReport.value: unit and frame
-AidingEventReport.innovation: unit and frame
-AidingEventReport.nis: unit and frame
-AttitudeReport.p: unit and frame
-AttitudeReport.pitch: unit and frame
-AttitudeReport.q: unit and frame
-AttitudeReport.r: unit and frame
-AttitudeReport.roll: unit and frame
-AttitudeReport.yaw: unit and frame
-AttitudeReport: class docstring
-Brake.duration: unit and frame
-Brake.timeout: unit and frame
-Brake: class docstring
-CapabilitiesReport.limits: unit and frame
-CapabilitiesReport.periods: unit and frame
-ControlModeReport.fuel: unit and frame
-ControlOutputReport.realized_wrench: unit and frame
-ControlOutputReport.requested_wrench: unit and frame
-EnergyReport.confidence: unit and frame
-EnergyReport.state_of_charge: unit and frame
-EstimatedStateReport.altitude: unit and frame
-EstimatedStateReport.eta: unit and frame
-EstimatedStateReport.nu: unit and frame
-EstimatedStateReport.velocity_ned: unit and frame
-FixReport.accuracy: unit and frame
-FixReport.depth: unit and frame
-FixReport.latitude: unit and frame
-FixReport.longitude: unit and frame
-FixReport.measurement_time: unit and frame
-FixReport.range: unit and frame
-FollowLeg.speed: unit and frame
-FollowLeg.x1: unit and frame
-FollowLeg.x2: unit and frame
-FollowLeg.y1: unit and frame
-FollowLeg.y2: unit and frame
-FollowLeg: class docstring
-FollowPath.points: unit and frame
-FollowPath.timeout: unit and frame
-GoToPoint.speed: unit and frame
-GoToPoint.timeout: unit and frame
-GoToPoint.x: unit and frame
-GoToPoint.y: unit and frame
-GoToPoint.z: unit and frame
-GoToPoint: class docstring
-HoldCourse.course: unit and frame
-HoldCourse.speed: unit and frame
-HoldCourse: class docstring
-HoldSetpoint.duration: unit and frame
-HoldSetpoint.heading: unit and frame
-HoldSetpoint.speed: unit and frame
-HoldSetpoint.timeout: unit and frame
-HoldSetpoint.z: unit and frame
-HoldSetpoint: class docstring
-Idle.duration: unit and frame
-Idle.timeout: unit and frame
-LimitsReport.max_altitude: unit and frame
-LimitsReport.max_depth: unit and frame
-LimitsReport.max_speed: unit and frame
-LimitsReport.max_vertical_rate: unit and frame
-LimitsReport.min_altitude: unit and frame
-LimitsReport.min_speed: unit and frame
-LimitsReport.region: unit and frame
-LinkReport.arrival: unit and frame
-LinkReport.integrity: unit and frame
-LinkReport.snr_db: unit and frame
-Loiter.duration: unit and frame
-Loiter.radius: unit and frame
-Loiter.speed: unit and frame
-Loiter.timeout: unit and frame
-Loiter.x: unit and frame
-Loiter.y: unit and frame
-Loiter.z: unit and frame
-NavigationUncertaintyReport.covariance: unit and frame
-NavigationUncertaintyReport.var_down: unit and frame
-NavigationUncertaintyReport.var_east: unit and frame
-NavigationUncertaintyReport.var_north: unit and frame
-NavigationUncertaintyReport.var_p: unit and frame
-NavigationUncertaintyReport.var_pitch: unit and frame
-NavigationUncertaintyReport.var_q: unit and frame
-NavigationUncertaintyReport.var_r: unit and frame
-NavigationUncertaintyReport.var_roll: unit and frame
-NavigationUncertaintyReport.var_u: unit and frame
-NavigationUncertaintyReport.var_v: unit and frame
-NavigationUncertaintyReport.var_w: unit and frame
-NavigationUncertaintyReport.var_yaw: unit and frame
-PartAction.settings: unit and frame
-PartStateReport.value: unit and frame
-PathTrackingReport.along_track: unit and frame
-PathTrackingReport.course_error: unit and frame
-PathTrackingReport.cross_track: unit and frame
-PathTrackingReport.leg_end: unit and frame
-PathTrackingReport.leg_start: unit and frame
-PathTrackingReport.time_to_go: unit and frame
-PathTrackingReport.vertical_track: unit and frame
-PayloadStateReport.settings: unit and frame
-PlanStateReport.maneuver_time_to_go: unit and frame
-PlanStateReport.plan_time_to_go: unit and frame
-PlanStateReport.progress: unit and frame
-PositionReport.cog: unit and frame
-PositionReport.sog: unit and frame
-PositionReport.x: unit and frame
-PositionReport.y: unit and frame
-PositionReport: class docstring
-Rows.alternation: unit and frame
-Rows.bearing: unit and frame
-Rows.cross_angle: unit and frame
-Rows.hstep: unit and frame
-Rows.length: unit and frame
-Rows.speed: unit and frame
-Rows.timeout: unit and frame
-Rows.width: unit and frame
-Rows.x: unit and frame
-Rows.y: unit and frame
-Rows.z: unit and frame
-SensorReadingReport.covariance: unit and frame
-SensorReadingReport.measured_at: unit and frame
-SensorReadingReport.values: unit and frame
-SetLimits.max_altitude: unit and frame
-SetLimits.max_depth: unit and frame
-SetLimits.max_speed: unit and frame
-SetLimits.max_vertical_rate: unit and frame
-SetLimits.min_altitude: unit and frame
-SetLimits.min_speed: unit and frame
-SetLimits.region: unit and frame
-SetPayload.settings: unit and frame
-SetStationRadii.inner_radius: unit and frame
-SetStationRadii.outer_radius: unit and frame
-SetStationRadii: class docstring
-SpiralProfile.end_z: unit and frame
-SpiralProfile.radius: unit and frame
-SpiralProfile.speed: unit and frame
-SpiralProfile.start_z: unit and frame
-SpiralProfile.timeout: unit and frame
-SpiralProfile.x: unit and frame
-SpiralProfile.y: unit and frame
-StationKeeping.duration: unit and frame
-StationKeeping.radius: unit and frame
-StationKeeping.speed: unit and frame
-StationKeeping.timeout: unit and frame
-StationKeeping.x: unit and frame
-StationKeeping.y: unit and frame
-StationKeeping.z: unit and frame
-SurfaceAndHold.duration: unit and frame
-SurfaceAndHold.radius: unit and frame
-SurfaceAndHold.speed: unit and frame
-SurfaceAndHold.timeout: unit and frame
-SurfaceAndHold.x: unit and frame
-SurfaceAndHold.y: unit and frame
-SurfaceAndHold.z: unit and frame
-VehicleModeReport.last_error_t: unit and frame
-VehicleModeReport.maneuver_start_t: unit and frame
-VehicleModeReport.maneuver_time_to_go: unit and frame
-YoYo.amplitude: unit and frame
-YoYo.pitch: unit and frame
-YoYo.speed: unit and frame
-YoYo.timeout: unit and frame
-YoYo.x: unit and frame
-YoYo.y: unit and frame
-YoYo.z: unit and frame
-# stated unknown by the library (unit or frame is unknown, mixed or record):
 
+# stated unknown by the library (unit or frame is unknown, mixed or record):
+ActuatorStateReport.value: unit mixed
+AidingEventReport.innovation: unit mixed
+Brake.end_actions: unit record
+Brake.start_actions: unit record
+CapabilitiesReport.entry_level_orders: unit record
+CapabilitiesReport.limits: unit mixed
+CapabilitiesReport.periods: unit mixed
+ControlOutputReport.realized_wrench: unit mixed
+ControlOutputReport.requested_wrench: unit mixed
+EstimatedStateReport.eta: unit mixed
+EstimatedStateReport.nu: unit mixed
+FollowLeg.speed: frame unknown
+FollowPath.end_actions: unit record
+FollowPath.points: unit mixed
+FollowPath.start_actions: unit record
+GoToPoint.end_actions: unit record
+GoToPoint.speed: frame unknown
+GoToPoint.start_actions: unit record
+HoldCourse.speed: frame unknown
+HoldSetpoint.end_actions: unit record
+HoldSetpoint.speed: frame unknown
+HoldSetpoint.start_actions: unit record
+Idle.end_actions: unit record
+Idle.start_actions: unit record
+Loiter.end_actions: unit record
+Loiter.speed: frame unknown
+Loiter.start_actions: unit record
+NavigationUncertaintyReport.covariance: unit mixed
+PartAction.settings: unit record
+PartStateReport.value: unit mixed
+PathTrackingReport.leg_end: unit mixed
+PathTrackingReport.leg_start: unit mixed
+PayloadStateReport.settings: unit record
+PlanQueryReply.maneuvers: unit record
+Rows.end_actions: unit record
+Rows.speed: frame unknown
+Rows.start_actions: unit record
+SensorReadingReport.covariance: unit mixed
+SensorReadingReport.values: unit mixed
+SetPayload.settings: unit record
+SpiralProfile.end_actions: unit record
+SpiralProfile.speed: frame unknown
+SpiralProfile.start_actions: unit record
+StartPlan.maneuvers: unit record
+StationKeeping.end_actions: unit record
+StationKeeping.speed: frame unknown
+StationKeeping.start_actions: unit record
+StorePlan.maneuvers: unit record
+SurfaceAndHold.end_actions: unit record
+SurfaceAndHold.speed: frame unknown
+SurfaceAndHold.start_actions: unit record
+YoYo.end_actions: unit record
+YoYo.speed: frame unknown
+YoYo.start_actions: unit record

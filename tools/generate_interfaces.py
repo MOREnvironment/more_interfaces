@@ -190,7 +190,7 @@ def collect(mods, base, plan, surf):
     orders = {}
     for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):
         orders.update(api.ORDERS)
-    for c in base.CATEGORY_ORDERS:
+    for c in tuple(base.CATEGORY_ORDERS) + tuple(getattr(base, "DEADMAN_ORDERS", ())):        # DEADMAN_ORDERS: KeepAlive
         orders[c.__name__] = c
     report_names = set()
     for api in (plan.PlanReferenceApiBase, surf.ExternalControlApiBase):

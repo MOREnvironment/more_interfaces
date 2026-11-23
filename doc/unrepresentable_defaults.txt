@@ -1,8 +1,12 @@
 # Library defaults that a rosidl .msg cannot carry (NaN, inf): each such field is an optional field (a bounded array of at most one value, or at most
 # N for a vector), empty = the library's default. Generated.
-# more_generic_models 0.1.0: 61 entries.
+# more_generic_models 0.1.0: 64 entries.
 Brake.duration: float64[<=1], MGM default inf, empty = never ends by time
 Brake.timeout: float64[<=1], MGM default inf, empty = no timeout
+CapabilitiesReport.deadman_timeout: float64[<=1], MGM default inf, empty = none (the vehicle has no dead-man timeout)
+CapabilitiesReport.origin_alt: float64[<=1], MGM default nan, empty = the scenario states none
+CapabilitiesReport.origin_lat: float64[<=1], MGM default nan, empty = the scenario states none
+CapabilitiesReport.origin_lon: float64[<=1], MGM default nan, empty = the scenario states none
 EnergyReport.confidence: float64[<=1], MGM default nan, empty = the sensor gives none
 EstimatedStateReport.altitude: float64[<=1], MGM default nan, empty = no valid measurement
 EstimatedStateReport.velocity_ned: float64[<=3], MGM default [nan, nan, nan], empty = unknown
@@ -25,7 +29,6 @@ LimitsReport.max_vertical_rate: float64[<=1], MGM default nan, empty = none (no 
 LimitsReport.min_altitude: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
 LimitsReport.min_speed: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
 LinkReport.arrival: float64[<=1], MGM default nan, empty = the link has none
-LinkReport.integrity: float64[<=1], MGM default nan, empty = the link has none
 LinkReport.snr_db: float64[<=1], MGM default nan, empty = the link has none
 Loiter.duration: float64[<=1], MGM default inf, empty = never ends by time
 Loiter.timeout: float64[<=1], MGM default inf, empty = no timeout

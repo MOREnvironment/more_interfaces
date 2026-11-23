@@ -17,15 +17,15 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string state
-string plan_id
-string maneuver_id
-int32 index
-int32 count
-float64 progress  # GAP: unit and frame not given by the library
-string outcome
-string previous_plan_id
-string reason
-uint32 order_id
-float64[<=1] plan_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
-float64[<=1] maneuver_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; GAP: unit and frame not given by the library
+string state  # unit: enum
+string plan_id  # unit: id
+string maneuver_id  # unit: id
+int32 index  # unit: 1
+int32 count  # unit: 1
+float64 progress  # unit: 1
+string outcome  # unit: enum
+string previous_plan_id  # unit: id
+string reason  # unit: text
+uint32 order_id  # unit: id
+float64[<=1] plan_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; unit: s
+float64[<=1] maneuver_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; unit: s

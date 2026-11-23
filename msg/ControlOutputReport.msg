@@ -9,6 +9,6 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64[6] requested_wrench  # GAP: unit and frame not given by the library
-float64[6] realized_wrench  # GAP: unit and frame not given by the library
-bool[6] enabled
+float64[6] requested_wrench  # unit: mixed; frame: body_frd; [X Y Z] in N, [K M N] in N m, about the body origin
+float64[6] realized_wrench  # unit: mixed; frame: body_frd; [X Y Z] in N, [K M N] in N m, about the body origin
+bool[6] enabled  # unit: flag; frame: body_frd; one flag per degree of freedom X Y Z K M N

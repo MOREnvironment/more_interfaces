@@ -12,11 +12,12 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64[3] leg_start  # GAP: unit and frame not given by the library
-float64[3] leg_end  # GAP: unit and frame not given by the library
-float64 along_track  # GAP: unit and frame not given by the library
-float64 cross_track  # GAP: unit and frame not given by the library
-float64 vertical_track  # GAP: unit and frame not given by the library
-float64 course_error  # GAP: unit and frame not given by the library
-float64 time_to_go  # GAP: unit and frame not given by the library
-bool near_end
+float64[3] leg_start  # unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
+float64[3] leg_end  # unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
+float64 along_track  # unit: m; frame: leg
+float64 cross_track  # unit: m; frame: leg
+float64 vertical_track  # unit: m; frame: depth_down
+float64 course_error  # unit: rad; frame: ned
+float64 time_to_go  # unit: s
+bool near_end  # unit: flag
+string z_mode "none"  # unit: enum; the vertical reference of the z of ``leg_start`` and ``leg_end`` (the unit is m): the route's ``z_mode``; ``none`` when no route is known

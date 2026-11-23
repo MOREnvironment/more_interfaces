@@ -16,6 +16,7 @@ GoToPoint[<=1] go_to_point
 HoldCourse[<=1] hold_course
 HoldSetpoint[<=1] hold_setpoint
 Idle[<=1] idle
+KeepAlive[<=1] keep_alive
 ListPlans[<=1] list_plans
 Loiter[<=1] loiter
 QueryCapabilities[<=1] query_capabilities

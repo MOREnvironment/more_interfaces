@@ -13,10 +13,10 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-string sensor
-string kind
-KeyValue[] values  # GAP: unit and frame not given by the library
-Matrix covariance  # GAP: unit and frame not given by the library
-string frame
-bool valid
-float64 measured_at  # GAP: unit and frame not given by the library
+string sensor  # unit: enum
+string kind  # unit: enum
+KeyValue[] values  # unit: mixed; frame: reading; named numbers, unit per key and kind: ``sensor_readings.py``
+Matrix covariance  # unit: mixed; frame: reading; numpy array of shape (n, n), the reading's R for its n rows, in the squared units of the rows (shapes per kind: sensor_readings.py); None: none
+string frame  # unit: text; the reading's own frame word
+bool valid  # unit: flag
+float64 measured_at  # unit: s

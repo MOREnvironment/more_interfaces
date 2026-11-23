@@ -4,6 +4,6 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-string name
-bool active true
-KeyValue[] settings  # GAP: unit and frame not given by the library
+string name  # unit: id
+bool active true  # unit: flag
+KeyValue[] settings  # unit: record; name (str) -> value (a number, taken as float); the unit of each value is the payload setting's own
