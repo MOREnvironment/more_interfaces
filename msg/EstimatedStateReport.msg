@@ -10,7 +10,7 @@ std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for position
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string child_frame_id  # frame of the body vectors, <vehicle>/base_link_fsd (FRD), set by the bridge
-float64[6] eta  # unit: mixed; frame: ned; [north, east, down (m, depth positive down), roll, pitch, yaw (rad)]
-float64[6] nu  # unit: mixed; frame: body_frd; [u, v, w (m/s), p, q, r (rad/s)]
-float64[<=1] altitude  # optional: empty = no valid measurement; send one value to set it. MGM default nan; unit: m; frame: seabed_up
-float64[<=3] velocity_ned  # optional: empty = unknown; otherwise the full array. MGM default [nan, nan, nan]; unit: m/s; frame: ned
+float64[6] eta  # components in order: x, y, z, phi, theta, psi; unit: mixed; frame: ned; [north, east, down (m, depth positive down), roll, pitch, yaw (rad)]
+float64[6] nu  # components in order: u, v, w, p, q, r; unit: mixed; frame: body_frd; [u, v, w (m/s), p, q, r (rad/s)]
+float64[<=1] altitude  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: m; frame: seabed_up
+float64[<=3] velocity_ned  # optional: empty = the library declares no meaning for this default; otherwise the full array. MGM default [nan, nan, nan]; components in order: x, y, z; unit: m/s; frame: ned

@@ -8,7 +8,7 @@ simulation bridge and a bridge to a real vehicle use the same types, so autonomy
 - 27 order messages (11 manoeuvres, 16 other orders) and 25 report messages, one per class of the library, field names unchanged.
   Reports carry `std_msgs/Header header`, `uint64 stream_seq` (the bridge's counter across all report types), `float64 t` (the exact sample instant), then
   the library's fields. `EstimatedStateReport` adds `child_frame_id`.
-- Records and entries: `PartAction`; every tuple entry of the library becomes a generated message named by its entry types (`StrFloat`, `StrStr`, `FloatFloat`, `StrFloatFloat`) with fields `item0`, `item1`, ... because the library names no entry field. A matrix is a flat row-major `float64` array (`FollowPath.points`: 4 columns; the 12 x 12 covariance: `float64[<=144]`, empty = none).
+- Records and entries: `PartAction`; every tuple entry of the library becomes a generated message named by the CamelCase of the library's `entry_names` for its positions (`('north', 'east')` -> `NorthEast`, `('source', 'destination')` -> `SourceDestination`), with those names as fields; a mapping's entry is `KeyValue` (float values) or `KeyText` (values of any type, carried as text). Names of a vector's components or a matrix's columns are in the field comment. A matrix is a flat row-major `float64` array (the 12 x 12 covariance: `float64[<=144]`, empty = none).
 - Unions: `Maneuver` and `Order` (a `kind` string and one `<Type>[<=1]` member per class, because rosidl has no polymorphism or recursion).
   `ValidateOrder` holds any order, so it is a service, not a member of `Order`.
 - Services: `SendOrder`, `CheckOrder`, `ValidateOrder` (all `Order order`), `Describe`. Action: `ExecutePlan` (definition only).
@@ -40,7 +40,7 @@ Type mapping, from the library's declaration alone: float -> float64, int -> uin
 (a NaN or inf default makes the field optional, see below). Tuples, dicts and records are read from the field's annotation, arrays from its `elements` entry.
 A field that is neither stops the generator.
 
-Generated from: more_generic_models 0.1.0, develop at commit 5593fef8 (field metadata, exact field annotations and `elements`, `order_types()`). The generator is run with an unpacked `git archive` of that commit first
+Generated from: more_generic_models 0.1.0, develop at commit 0b150268 (field metadata, exact annotations, `elements`, `entry_names`, `when_unset`, `order_types()`). The generator is run with an unpacked `git archive` of that commit first
 on the path, so the checkout and the environment of the library are untouched:
 
     git -C <more_generic_models> archive <commit> | tar -x -C <dir>
@@ -52,7 +52,7 @@ rosidl (jazzy) reads a `.msg` default with `ast.literal_eval`: a default `nan` o
 is NaN or inf (61 of them, `doc/unrepresentable_defaults.txt`) is therefore an **optional field**: a bounded array of at most one value, `float64[<=1] name`.
 Empty means the library's default; the comment on the field states that default and its meaning ("empty = unchanged", "empty = no timeout", "empty = unknown").
 A vector whose default is all NaN (`EstimatedStateReport.velocity_ned`) is `float64[<=3]`: empty = all NaN, otherwise exactly 3 values (NaN entries allowed).
-A new NaN / inf default of the library with no stated meaning in the generator (`OPTIONAL`) stops the generator.
+An optional field whose default has no `when_unset` in the library gets a comment saying the library declares no meaning (listed in `doc/unrepresentable_defaults.txt`).
 
 For a ROS 2 client (Python), `SetLimits` with an unchanged depth limit and a new speed limit:
 
@@ -63,9 +63,9 @@ For a ROS 2 client (Python), `SetLimits` with an unchanged depth limit and a new
 and `StationKeeping(x, y)` with no `timeout` is `timeout = []` (no timeout); `timeout = [120.0]` stops it after 120 s. A bridge reads empty as the library's
 default and one element as that value; a report field that is empty means NaN (unknown).
 
-## Nothing by hand for shapes
+## Nothing by hand for shapes or meanings
 
-The generator reads only the library's annotations, the `elements` entry of the field metadata and `base.order_types()`; a field it cannot map stops it. By hand remain: what an empty optional field means (`OPTIONAL` in the generator: the library does not declare it per field), the services and the action (bridge design), and the report stamp fields. `PartAction.settings` is an open mapping with values of any type: it is `StrStr[]` with the value as text, so the value's type is lost (open contract item).
+The generator reads only the library's annotations, the `elements`, `entry_names` and `when_unset` entries of the field metadata and `base.order_types()`; a field it cannot map stops it. An empty optional field means what its `when_unset` says; nine fields have none declared and their comment says so (listed at the end of `doc/unrepresentable_defaults.txt`). By hand remain: the sentence for each member of the library's closed set `UNSET_MEANINGS` (the generator stops if the set changes), the services and the action (bridge design), and the report stamp fields. `PartAction.settings` is an open mapping with values of any type: `KeyText[]`, the value as text, so its type is lost (open contract item).
 
 ## Tests (`colcon test`, or `pytest tests/` with the library installed)
 

@@ -9,10 +9,10 @@ Field types are read from the library's declaration alone: the field's annotatio
 ``tuple[tuple[str, float], ...]``, ``dict[str, float]``, a dataclass) or, where Python cannot say it, the ``elements`` entry of the field's metadata
 (``vector``, ``matrix``, ``square_matrix``, ``records``, ``any_order``, ``open_mapping``); orders come from ``base.order_types()``. A field that can be
 mapped by neither stops the generator (an MGM gap is reported, not worked around). A tuple entry gets a generated message named by its entry types
-(``StrFloat``) with fields ``item0``, ``item1``: the library names no entry field. An ``int`` is ``uint32`` when its unit is ``id``, else ``int64``.
-A field whose default is NaN or inf becomes an optional field (see ``OPTIONAL``): ``float64[<=1]``, empty = the library's default; an array whose
-default is all NaN, or None, is ``float64[<=N]``, empty = that default, otherwise the full array. What an empty field means is stated in ``OPTIONAL``
-(the library does not declare it per field).
+(CamelCase of the library's ``entry_names``, ``NorthEast``) with those names as fields; a mapping's entry is ``KeyValue`` / ``KeyText``. An ``int`` is ``uint32`` when its unit is ``id``, else ``int64``.
+A field whose default is NaN or inf becomes an optional field (see ``UNSET_TEXT``): ``float64[<=1]``, empty = the library's default; an array whose
+default is all NaN, or None, is ``float64[<=N]``, empty = that default, otherwise the full array. What an empty field means is the field's ``when_unset``;
+where the library gives none, the comment says so.
 Units, frames and notes are read from the field's ``metadata`` (``unit``, ``frame``, ``doc``) when the library gives them and go into the field comment;
 a value the library states as ``unknown`` / ``mixed`` / ``record`` is written as given and listed in ``doc/metadata_gaps.txt`` as stated unknown by the
 library. Where the library gives no metadata at all, the comment carries the marker ``GAP`` and the field is listed there as missing.
@@ -37,30 +37,17 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = "vehicle_api_interfaces"
 
-# What an empty optional field means, per (class, field), then per class, then per field name. A nan / inf default with no entry stops the generator.
-_UNCHANGED = "unchanged (the limit is left as it is)"
-OPTIONAL = {
-    ("StationKeeping", "z"): "not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without)",
-    ("StationKeeping", "radius"): "not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without)",
-    ("StationKeeping", "speed"): "not given (a vehicle that needs it refuses the order and names the field)",
-    ("SpiralProfile", "start_z"): "the depth the vehicle has",
-    ("CapabilitiesReport", "deadman_timeout"): "none (the vehicle has no dead-man timeout)",
-    ("CapabilitiesReport", "origin_lat"): "the scenario states none", ("CapabilitiesReport", "origin_lon"): "the scenario states none",
-    ("CapabilitiesReport", "origin_alt"): "the scenario states none",
-    ("EnergyReport", "confidence"): "the sensor gives none",
-    ("EstimatedStateReport", "altitude"): "no valid measurement",
-    ("EstimatedStateReport", "velocity_ned"): "unknown",
-    ("PartStateReport", "value"): "none (the monitor judged no number)",
-    ("PlanStateReport", "plan_time_to_go"): "unknown", ("PlanStateReport", "maneuver_time_to_go"): "unknown",
-    ("VehicleModeReport", "last_error_t"): "none (no breach yet)", ("VehicleModeReport", "maneuver_start_t"): "none (no manoeuvre runs)",
-    ("VehicleModeReport", "maneuver_time_to_go"): "unknown",
+# The comment text of each member of the library's closed set ``messages.UNSET_MEANINGS`` (its own definitions, shortened). A member the library adds that
+# is not here stops the generator; a field with no ``when_unset`` says the library declares no meaning for its default.
+UNSET_TEXT = {
+    "unchanged": "unchanged (the setting is left as it is)",
+    "unbounded": "unbounded (no bound: a time that never runs out, a limit nothing enforces)",
+    "not_given": "not given (a vehicle that needs the value refuses the order and names the field, or uses its own)",
+    "not_available": "not available (the vehicle has no value to report)",
+    "not_requested": "not requested (the API's configuration does not ask for the value, so it is left out)",
 }
-OPTIONAL_CLASS = {
-    "SetLimits": _UNCHANGED, "SetStationRadii": "unchanged (the radius is left as it is)",
-    "FixReport": "the fix gives none", "LimitsReport": "none (no monitor enforces this limit)", "LinkReport": "the link has none",
-    "NavigationUncertaintyReport": "the navigation gives none",
-}
-OPTIONAL_NAME = {"timeout": "no timeout", "duration": "never ends by time"}
+NO_MEANING = "the library declares no meaning for this default"
+NO_MEANING_FIELDS = []
 
 FRAME_NOTE = ("Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from north "
               "clockwise, time in s on the scenario clock.")
@@ -175,19 +162,29 @@ def _base_of(names, classes):
     return bases[0].__name__.removesuffix("Fields")
 
 
-def _entry(t, where):
-    """The ros type of one scalar of a tuple entry, named by its Python type."""
-    if t in SCALARS:
-        return SCALARS[t], t.__name__.capitalize()
-    raise TypeError(f"{where}: tuple entry type {t!r} cannot be mapped")
+def _camel(names):
+    return "".join(p.capitalize() for n in names for p in n.split("_"))
 
 
-def _pair(types, where):
-    """A generated entry message for ``(t0, t1, ...)``: named by the entry types (``StrFloat``), fields ``item0``, ``item1``: the library names no entry."""
-    parts = [_entry(t, where) for t in types]
-    name = "".join(n for _, n in parts)
-    ENTRIES[name] = [(ros, f"item{i}", None, "") for i, (ros, _) in enumerate(parts)]
+def _pair(types, names, where):
+    """A generated entry message for the entries ``types`` at the positions ``names`` (the field's ``entry_names``). Rule: the message is named by its
+    position names in CamelCase (``('north', 'east')`` -> ``NorthEast``), its fields are those names; two fields that give one name but other types stop the generator."""
+    if names is None or len(names) != len(types):
+        raise TypeError(f"{where}: a tuple entry of {len(types)} positions needs `entry_names` of that length in the library, got {names!r}")
+    flds = []
+    for t, n in zip(types, names):
+        if t not in SCALARS:
+            raise TypeError(f"{where}: tuple entry type {t!r} cannot be mapped")
+        flds.append((SCALARS[t], n, None, ""))
+    name = _camel(names)
+    if ENTRIES.setdefault(name, flds) != flds:
+        raise TypeError(f"{where}: entry message {name} would have two different definitions")
     return name
+
+
+def _names_note(f, what):
+    names = f.metadata.get("entry_names")
+    return f"{what}: {', '.join(names)}" if names else None
 
 
 def map_type(cls, f, hint, mods, where):
@@ -201,15 +198,15 @@ def map_type(cls, f, hint, mods, where):
     if el:
         k = el["kind"]
         if k == "vector":
-            return f"{DTYPES[el['dtype']]}[{el['length']}]", None
+            return f"{DTYPES[el['dtype']]}[{el['length']}]", _names_note(f, "components in order")
         if k == "matrix":
             n = None if el["rows"] is None else el["rows"] * el["cols"]
-            return (f"{DTYPES[el['dtype']]}[]" if n is None else f"{DTYPES[el['dtype']]}[{n}]"), f"matrix {el['rows'] or 'any number of'} x {el['cols']}, row-major"
+            return (f"{DTYPES[el['dtype']]}[]" if n is None else f"{DTYPES[el['dtype']]}[{n}]"), f"matrix {el['rows'] or 'any number of'} x {el['cols']}, row-major; columns in order: {', '.join(f.metadata['entry_names'])}" if f.metadata.get("entry_names") else f"matrix {el['rows'] or 'any number of'} x {el['cols']}, row-major"
         if k == "square_matrix":
             sizes = el["size"] if isinstance(el["size"], tuple) else (el["size"],)
             top = max(sizes) ** 2
             return (f"{DTYPES[el['dtype']]}[<={top}]" if len(sizes) > 1 else f"{DTYPES[el['dtype']]}[{top}]"), \
-                f"square matrix, row-major, size {' or '.join(map(str, sizes))}"
+                f"square matrix, row-major, size {' or '.join(map(str, sizes))}" + (f"; rows and columns in order: {', '.join(f.metadata['entry_names'])}" if f.metadata.get("entry_names") else "")
         if k == "records":
             classes = [find_class(mods, n) for n in el["of"]]
             return _base_of(el["of"], classes) + "[]", None
@@ -218,9 +215,9 @@ def map_type(cls, f, hint, mods, where):
         if k == "open_mapping":
             vals = el["values"]
             if vals == ["any"] or vals == ("any",):
-                return _pair((str, str), where) + "[]", "open mapping: values of any type, carried as text (their type is lost)"
+                return _pair((str, str), ("key", "text"), where) + "[]", "open mapping: values of any type, carried as text (their type is lost)"
             if all(v == "float" for v in vals):
-                return _pair((str, float), where) + "[]", None
+                return _pair((str, float), ("key", "value"), where) + "[]", None
         raise TypeError(f"{where}: elements {el!r} cannot be mapped")
     if hint in SCALARS:
         if hint is int:
@@ -231,19 +228,30 @@ def map_type(cls, f, hint, mods, where):
         if a in SCALARS:
             return SCALARS[a] + "[]", None
         if typing.get_origin(a) is tuple:
-            return _pair(typing.get_args(a), where) + "[]", None
+            return _pair(typing.get_args(a), f.metadata.get("entry_names"), where) + "[]", None
         if dataclasses.is_dataclass(a):
             REFERENCED.setdefault(a.__name__, a)
             return a.__name__ + "[]", None
     if origin is tuple and args and Ellipsis not in args and all(a is float for a in args):
-        return f"float64[{len(args)}]", None
+        return f"float64[{len(args)}]", _names_note(f, "components in order")
     if origin is dict and args == (str, float):
-        return _pair((str, float), where) + "[]", None
+        return _pair((str, float), ("key", "value"), where) + "[]", None
     raise TypeError(f"{where}: annotation {hint!r} has no mapping and no `elements` entry in the library (an MGM gap, not to be worked around here)")
 
 
 ENTRIES = {}
 REFERENCED = {}
+
+
+def unset_text(f, where, owner_name):
+    """What an empty optional field means: the field's ``when_unset`` member, or the statement that the library declares none."""
+    w = f.metadata.get("when_unset")
+    if w is None:
+        NO_MEANING_FIELDS.append(f"{owner_name}.{f.name}")
+        return NO_MEANING
+    if w not in UNSET_TEXT:
+        raise TypeError(f"{where}: when_unset {w!r} is not known to the generator")
+    return UNSET_TEXT[w]
 
 
 def field_lines(cls, gaps, skip=("t",), owner=None, unknown=None):
@@ -278,17 +286,13 @@ def field_lines(cls, gaps, skip=("t",), owner=None, unknown=None):
             if n is not None:
                 ros = f"float64[<={n}]"
             shown = "None" if dval is None else "[" + ", ".join("nan" if np.isnan(x) else fnum(x) for x in dval) + "]"
-            meaning = OPTIONAL.get(key) or OPTIONAL_CLASS.get(cls.__name__) or ("none (the library's None)" if dval is None else None)
-            if meaning is None:
-                raise TypeError(f"{where}: library default {shown} has no entry in OPTIONAL (state what an empty field means)")
+            meaning = unset_text(f, where, owner_name)
             notes.append(f"optional: empty = {meaning}; otherwise the full array. MGM default {shown}")
             OPTIONAL_FIELDS.append(f"{owner_name}.{f.name}: {ros}, MGM default {shown}, empty = {meaning}")
         if shape_note:
             notes.append(shape_note)
         if scalar and default is not None and ("nan" in default or "inf" in default):
-            meaning = OPTIONAL.get(key) or OPTIONAL_CLASS.get(cls.__name__) or OPTIONAL_NAME.get(f.name)
-            if meaning is None:
-                raise TypeError(f"{where}: library default {default} has no entry in OPTIONAL (state what an empty field means)")
+            meaning = unset_text(f, where, owner_name)
             ros = "float64[<=1]"
             notes.append(f"optional: empty = {meaning}; send one value to set it. MGM default {default}")
             OPTIONAL_FIELDS.append(f"{owner_name}.{f.name}: {ros}, MGM default {default}, empty = {meaning}")
@@ -348,9 +352,13 @@ def generate() -> dict:
     NO_DOC.clear()
     UNKNOWN.clear()
     OPTIONAL_FIELDS.clear()
+    NO_MEANING_FIELDS.clear()
 
     ENTRIES.clear()
     REFERENCED.clear()
+    msgmod = importlib.import_module("more_generic_models.vehicle_api.messages")
+    if set(msgmod.UNSET_MEANINGS) != set(UNSET_TEXT):
+        raise TypeError(f"UNSET_MEANINGS of the library {msgmod.UNSET_MEANINGS} differ from the generator's texts {sorted(UNSET_TEXT)}")
     order_fields = {}
     for name, cls in {**orders, **maneuvers}.items():
         if any(f.metadata.get("elements", {}).get("kind") == "any_order" for f in dataclasses.fields(cls)):
@@ -375,7 +383,7 @@ def generate() -> dict:
                 files[f"msg/{n}.msg"] = msg_text(n, doc_of(c), field_lines(c, gaps, skip=()), library)
                 done.add(f"msg/{n}.msg")
     for n, flds in sorted(ENTRIES.items()):
-        files[f"msg/{n}.msg"] = msg_text(n, "An entry of a library tuple or mapping; the library names no entry field: item0, item1, ... in its order.", flds, library, helper=True)
+        files[f"msg/{n}.msg"] = msg_text(n, "An entry of a library tuple or mapping: one field per position, named by the library's entry_names (a mapping's entry is key and value).", flds, library, helper=True)
 
     def union(uname, doc, members):
         flds = [("string", "kind", None, "the class name of the member that is set")] + [(f"{m}[<=1]", snake(m), None, "") for m in members]
@@ -417,7 +425,8 @@ def generate() -> dict:
     files["doc/unrepresentable_defaults.txt"] = (
         "# Library defaults that a rosidl .msg cannot carry (NaN, inf): each such field is an optional field (a bounded array of at most one value, or at most\n"
         "# N for a vector), empty = the library's default. Generated.\n"
-        f"# more_generic_models {library}: {len(set(OPTIONAL_FIELDS))} entries.\n" + "\n".join(sorted(set(OPTIONAL_FIELDS))) + "\n")
+        f"# more_generic_models {library}: {len(set(OPTIONAL_FIELDS))} entries.\n" + "\n".join(sorted(set(OPTIONAL_FIELDS))) + "\n"
+        f"# optional fields for which the library declares no meaning of the default ({len(set(NO_MEANING_FIELDS))}):\n" + "\n".join(sorted(set(NO_MEANING_FIELDS))) + "\n")
     lines = ["# Generated by tools/generate_interfaces.py. Do not edit."]
     for d in ("msg", "srv", "action"):
         lines += [f'list(APPEND INTERFACE_FILES "{p}")' for p in sorted(files) if p.startswith(d + "/")]

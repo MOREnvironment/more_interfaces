@@ -18,6 +18,6 @@ string[] maneuver_ids  # unit: id
 bool running false  # unit: flag
 string checksum  # unit: id
 Maneuver[] maneuvers  # unit: record; copies of the stored manoeuvre orders
-StrStr[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
+SourceDestination[] transitions  # unit: id; ((source maneuver_id, destination maneuver_id), ...)
 string start_maneuver_id  # unit: id
 uint32 order_id  # unit: id

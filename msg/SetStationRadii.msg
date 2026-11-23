@@ -3,5 +3,5 @@
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
-float64[<=1] inner_radius  # optional: empty = unchanged (the radius is left as it is); send one value to set it. MGM default nan; unit: m
-float64[<=1] outer_radius  # optional: empty = unchanged (the radius is left as it is); send one value to set it. MGM default nan; unit: m
+float64[<=1] inner_radius  # optional: empty = unchanged (the setting is left as it is); send one value to set it. MGM default nan; unit: m
+float64[<=1] outer_radius  # optional: empty = unchanged (the setting is left as it is); send one value to set it. MGM default nan; unit: m

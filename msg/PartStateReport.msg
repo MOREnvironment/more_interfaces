@@ -14,4 +14,4 @@ string part  # unit: id
 string kind  # unit: enum
 string health  # unit: enum
 string text_kind  # unit: enum
-float64[<=1] value  # optional: empty = none (the monitor judged no number); send one value to set it. MGM default nan; unit: mixed; m for a depth or an altitude, s for a time, m/s for a speed or a rate, as the monitor's text_kind says
+float64[<=1] value  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: mixed; m for a depth or an altitude, s for a time, m/s for a speed or a rate, as the monitor's text_kind says

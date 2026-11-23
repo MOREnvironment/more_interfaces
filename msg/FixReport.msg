@@ -14,9 +14,9 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 bool received  # unit: flag
 string target  # unit: id
 string observer  # unit: id
-float64[<=1] latitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: deg; frame: geodetic
-float64[<=1] longitude  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: deg; frame: geodetic
-float64[<=1] depth  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m; frame: depth_down
-float64[<=1] accuracy  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m
-float64[<=1] measurement_time  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: s
-float64[<=1] range  # optional: empty = the fix gives none; send one value to set it. MGM default nan; unit: m
+float64[<=1] latitude  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: deg; frame: geodetic
+float64[<=1] longitude  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: deg; frame: geodetic
+float64[<=1] depth  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: m; frame: depth_down
+float64[<=1] accuracy  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: m
+float64[<=1] measurement_time  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: s
+float64[<=1] range  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: m

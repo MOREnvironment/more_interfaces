@@ -12,8 +12,8 @@
 std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for positions
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
-float64[3] leg_start  # unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
-float64[3] leg_end  # unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
+float64[3] leg_start  # components in order: north, east, z; unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
+float64[3] leg_end  # components in order: north, east, z; unit: mixed; frame: ned; (north m, east m, z m): z in the unit named by ``z_mode``
 float64 along_track  # unit: m; frame: leg
 float64 cross_track  # unit: m; frame: leg
 float64 vertical_track  # unit: m; frame: depth_down

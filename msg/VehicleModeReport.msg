@@ -2,7 +2,8 @@
 # ``mode``: the mode word of the API; ``parts_in_error``: the monitors that judged a breach in the last period (their sources);
 # ``last_error``: the reason of the latest breach (empty: none yet) and ``last_error_t`` the time it appeared (s, NaN: none).
 # ``maneuver_kind``: the algorithm name of the manoeuvre the plan runs now (empty: none runs), ``maneuver_start_t`` the time it
-# began (s, NaN: none) and ``maneuver_time_to_go`` the time it has left (s, NaN: unknown). ``order_id``: the id ``send`` gave the
+# began (s, NaN: none) and ``maneuver_time_to_go`` the time it has left (s; NaN: unknown, or the manoeuvre has no bound: an
+# infinite duration gives NaN in some manoeuvres and ``inf`` in Brake and HoldSetpoint). ``order_id``: the id ``send`` gave the
 # order whose plan runs now (0: no plan runs, or it was started by a scripted order, which has no id).
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
@@ -13,8 +14,8 @@ float64 t  # unit: s; the sample instant on the scenario clock, exactly
 string mode  # unit: enum
 string[] parts_in_error  # unit: text
 string last_error  # unit: text
-float64[<=1] last_error_t  # optional: empty = none (no breach yet); send one value to set it. MGM default nan; unit: s
+float64[<=1] last_error_t  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: s
 string maneuver_kind  # unit: enum
-float64[<=1] maneuver_start_t  # optional: empty = none (no manoeuvre runs); send one value to set it. MGM default nan; unit: s
-float64[<=1] maneuver_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; unit: s
+float64[<=1] maneuver_start_t  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: s
+float64[<=1] maneuver_time_to_go  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: s
 uint32 order_id  # unit: id

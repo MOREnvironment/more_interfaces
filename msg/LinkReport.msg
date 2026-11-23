@@ -14,5 +14,5 @@ string peer  # unit: id
 string kind  # unit: enum
 int64 seq  # unit: 1
 int64 size_bytes  # unit: B
-float64[<=1] snr_db  # optional: empty = the link has none; send one value to set it. MGM default nan; unit: dB
-float64[<=1] arrival  # optional: empty = the link has none; send one value to set it. MGM default nan; unit: s
+float64[<=1] snr_db  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: dB
+float64[<=1] arrival  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: s

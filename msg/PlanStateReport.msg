@@ -6,11 +6,12 @@
 # aborted; ``order_id`` the id of the order that started the plan, on every report of that plan (on a start that failed, the
 # failed order's; 0: none, e.g. a scripted order, or the plan was released by a stop or the dead-man; after an abort and
 # ``ClearError`` the reports keep the order id of the aborted plan, while ``plan_id`` is cleared, until the next start), so a
-# client links each report to the ``OrderReply`` of its order. ``maneuver_time_to_go`` (s, NaN: unknown) the time the manoeuvre at
-# ``index`` has left (the mission's ``Progress.timeToGo``); ``plan_time_to_go`` (s, NaN: unknown) the time the plan has left: 0
-# once it has succeeded; while it runs, ``maneuver_time_to_go`` (a running leg's distance to go over its speed where that is NaN)
-# plus the estimated duration of each manoeuvre after the one running (``plan_reference.base.plan_time_to_go``), NaN when one of
-# them has no bound; NaN in any other state.
+# client links each report to the ``OrderReply`` of its order. ``maneuver_time_to_go`` (s; NaN: unknown, or the manoeuvre has no
+# bound: an infinite duration gives NaN in Idle, Loiter and StationKeeping and ``inf`` in Brake and HoldSetpoint) the time the
+# manoeuvre at ``index`` has left (the mission's ``Progress.timeToGo``); ``plan_time_to_go`` (s; NaN: unknown, or unbounded: a
+# manoeuvre of the plan has no bound) the time the plan has left: 0 once it has succeeded; while it runs, ``maneuver_time_to_go``
+# (a running leg's distance to go over its speed where that is NaN) plus the estimated duration of each manoeuvre after the one
+# running (``plan_reference.base.plan_time_to_go``), NaN when one of them has no bound; NaN in any other state.
 #
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
@@ -27,5 +28,5 @@ string outcome  # unit: enum
 string previous_plan_id  # unit: id
 string reason  # unit: text
 uint32 order_id  # unit: id
-float64[<=1] plan_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; unit: s
-float64[<=1] maneuver_time_to_go  # optional: empty = unknown; send one value to set it. MGM default nan; unit: s
+float64[<=1] plan_time_to_go  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: s
+float64[<=1] maneuver_time_to_go  # optional: empty = the library declares no meaning for this default; send one value to set it. MGM default nan; unit: s

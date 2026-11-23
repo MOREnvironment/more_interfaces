@@ -8,4 +8,4 @@ std_msgs/Header header  # stamp = t rounded to ns; frame_id map_ned for position
 uint64 stream_seq  # publication counter per vehicle across all report types (restores the drain order)
 float64 t  # unit: s; the sample instant on the scenario clock, exactly
 float64 state_of_charge  # unit: 1
-float64[<=1] confidence  # optional: empty = the sensor gives none; send one value to set it. MGM default nan; unit: 1
+float64[<=1] confidence  # optional: empty = not available (the vehicle has no value to report); send one value to set it. MGM default nan; unit: 1

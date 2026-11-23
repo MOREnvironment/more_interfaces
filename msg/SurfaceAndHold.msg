@@ -6,7 +6,7 @@
 # Frames (owner decision): positions NED about the scenario origin (x north, y east), body quantities FRD, angles in rad from
 # north clockwise, time in s on the scenario clock.
 string maneuver_id  # unit: id
-float64[<=1] timeout  # optional: empty = no timeout; send one value to set it. MGM default inf; unit: s
+float64[<=1] timeout  # optional: empty = unbounded (no bound: a time that never runs out, a limit nothing enforces); send one value to set it. MGM default inf; unit: s
 PartAction[] start_actions  # unit: record; PartAction records
 PartAction[] end_actions  # unit: record; PartAction records
 float64 x  # unit: m; frame: ned
@@ -17,5 +17,5 @@ float64 speed  # unit: m/s; frame: unknown; commanded speed; over ground or thro
 string z_mode "depth"  # unit: enum
 bool use_current_position false  # unit: flag
 bool hold false  # unit: flag
-float64[<=1] duration  # optional: empty = never ends by time; send one value to set it. MGM default inf; unit: s
+float64[<=1] duration  # optional: empty = unbounded (no bound: a time that never runs out, a limit nothing enforces); send one value to set it. MGM default inf; unit: s
 bool end_at_surface false  # unit: flag

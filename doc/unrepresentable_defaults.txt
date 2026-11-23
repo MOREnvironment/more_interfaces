@@ -1,68 +1,78 @@
 # Library defaults that a rosidl .msg cannot carry (NaN, inf): each such field is an optional field (a bounded array of at most one value, or at most
 # N for a vector), empty = the library's default. Generated.
 # more_generic_models 0.1.0: 65 entries.
-Brake.duration: float64[<=1], MGM default inf, empty = never ends by time
-Brake.timeout: float64[<=1], MGM default inf, empty = no timeout
-CapabilitiesReport.deadman_timeout: float64[<=1], MGM default inf, empty = none (the vehicle has no dead-man timeout)
-CapabilitiesReport.origin_alt: float64[<=1], MGM default nan, empty = the scenario states none
-CapabilitiesReport.origin_lat: float64[<=1], MGM default nan, empty = the scenario states none
-CapabilitiesReport.origin_lon: float64[<=1], MGM default nan, empty = the scenario states none
-EnergyReport.confidence: float64[<=1], MGM default nan, empty = the sensor gives none
-EstimatedStateReport.altitude: float64[<=1], MGM default nan, empty = no valid measurement
-EstimatedStateReport.velocity_ned: float64[<=3], MGM default [nan, nan, nan], empty = unknown
-FixReport.accuracy: float64[<=1], MGM default nan, empty = the fix gives none
-FixReport.depth: float64[<=1], MGM default nan, empty = the fix gives none
-FixReport.latitude: float64[<=1], MGM default nan, empty = the fix gives none
-FixReport.longitude: float64[<=1], MGM default nan, empty = the fix gives none
-FixReport.measurement_time: float64[<=1], MGM default nan, empty = the fix gives none
-FixReport.range: float64[<=1], MGM default nan, empty = the fix gives none
-FollowPath.timeout: float64[<=1], MGM default inf, empty = no timeout
-GoToPoint.timeout: float64[<=1], MGM default inf, empty = no timeout
-HoldSetpoint.duration: float64[<=1], MGM default inf, empty = never ends by time
-HoldSetpoint.timeout: float64[<=1], MGM default inf, empty = no timeout
-Idle.duration: float64[<=1], MGM default inf, empty = never ends by time
-Idle.timeout: float64[<=1], MGM default inf, empty = no timeout
-LimitsReport.max_altitude: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LimitsReport.max_depth: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LimitsReport.max_speed: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LimitsReport.max_vertical_rate: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LimitsReport.min_altitude: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LimitsReport.min_speed: float64[<=1], MGM default nan, empty = none (no monitor enforces this limit)
-LinkReport.arrival: float64[<=1], MGM default nan, empty = the link has none
-LinkReport.snr_db: float64[<=1], MGM default nan, empty = the link has none
-Loiter.duration: float64[<=1], MGM default inf, empty = never ends by time
-Loiter.timeout: float64[<=1], MGM default inf, empty = no timeout
-NavigationUncertaintyReport.covariance: float64[<=144], MGM default None, empty = the navigation gives none
-NavigationUncertaintyReport.var_p: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_pitch: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_q: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_r: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_roll: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_u: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_v: float64[<=1], MGM default nan, empty = the navigation gives none
-NavigationUncertaintyReport.var_w: float64[<=1], MGM default nan, empty = the navigation gives none
-PartStateReport.value: float64[<=1], MGM default nan, empty = none (the monitor judged no number)
-PlanStateReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = unknown
-PlanStateReport.plan_time_to_go: float64[<=1], MGM default nan, empty = unknown
-Rows.timeout: float64[<=1], MGM default inf, empty = no timeout
-SetLimits.max_altitude: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetLimits.max_depth: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetLimits.max_speed: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetLimits.max_vertical_rate: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetLimits.min_altitude: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetLimits.min_speed: float64[<=1], MGM default nan, empty = unchanged (the limit is left as it is)
-SetStationRadii.inner_radius: float64[<=1], MGM default nan, empty = unchanged (the radius is left as it is)
-SetStationRadii.outer_radius: float64[<=1], MGM default nan, empty = unchanged (the radius is left as it is)
-SpiralProfile.start_z: float64[<=1], MGM default nan, empty = the depth the vehicle has
-SpiralProfile.timeout: float64[<=1], MGM default inf, empty = no timeout
-StationKeeping.duration: float64[<=1], MGM default inf, empty = never ends by time
-StationKeeping.radius: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field; one whose station radii are set by SetStationRadii takes the order without)
-StationKeeping.speed: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field)
-StationKeeping.timeout: float64[<=1], MGM default inf, empty = no timeout
-StationKeeping.z: float64[<=1], MGM default nan, empty = not given (a vehicle that needs it refuses the order and names the field; one with no use for it takes the order without)
-SurfaceAndHold.duration: float64[<=1], MGM default inf, empty = never ends by time
-SurfaceAndHold.timeout: float64[<=1], MGM default inf, empty = no timeout
-VehicleModeReport.last_error_t: float64[<=1], MGM default nan, empty = none (no breach yet)
-VehicleModeReport.maneuver_start_t: float64[<=1], MGM default nan, empty = none (no manoeuvre runs)
-VehicleModeReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = unknown
-YoYo.timeout: float64[<=1], MGM default inf, empty = no timeout
+Brake.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+Brake.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+CapabilitiesReport.deadman_timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+CapabilitiesReport.origin_alt: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+CapabilitiesReport.origin_lat: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+CapabilitiesReport.origin_lon: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+EnergyReport.confidence: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+EstimatedStateReport.altitude: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+EstimatedStateReport.velocity_ned: float64[<=3], MGM default [nan, nan, nan], empty = the library declares no meaning for this default
+FixReport.accuracy: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+FixReport.depth: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+FixReport.latitude: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+FixReport.longitude: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+FixReport.measurement_time: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+FixReport.range: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+FollowPath.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+GoToPoint.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+HoldSetpoint.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+HoldSetpoint.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+Idle.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+Idle.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.max_altitude: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.max_depth: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.max_speed: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.max_vertical_rate: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.min_altitude: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LimitsReport.min_speed: float64[<=1], MGM default nan, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+LinkReport.arrival: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+LinkReport.snr_db: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+Loiter.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+Loiter.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+NavigationUncertaintyReport.covariance: float64[<=144], MGM default None, empty = not requested (the API's configuration does not ask for the value, so it is left out)
+NavigationUncertaintyReport.var_p: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_pitch: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_q: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_r: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_roll: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_u: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_v: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+NavigationUncertaintyReport.var_w: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+PartStateReport.value: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+PlanStateReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+PlanStateReport.plan_time_to_go: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+Rows.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+SetLimits.max_altitude: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetLimits.max_depth: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetLimits.max_speed: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetLimits.max_vertical_rate: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetLimits.min_altitude: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetLimits.min_speed: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetStationRadii.inner_radius: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SetStationRadii.outer_radius: float64[<=1], MGM default nan, empty = unchanged (the setting is left as it is)
+SpiralProfile.start_z: float64[<=1], MGM default nan, empty = not given (a vehicle that needs the value refuses the order and names the field, or uses its own)
+SpiralProfile.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+StationKeeping.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+StationKeeping.radius: float64[<=1], MGM default nan, empty = not given (a vehicle that needs the value refuses the order and names the field, or uses its own)
+StationKeeping.speed: float64[<=1], MGM default nan, empty = not given (a vehicle that needs the value refuses the order and names the field, or uses its own)
+StationKeeping.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+StationKeeping.z: float64[<=1], MGM default nan, empty = not given (a vehicle that needs the value refuses the order and names the field, or uses its own)
+SurfaceAndHold.duration: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+SurfaceAndHold.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+VehicleModeReport.last_error_t: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+VehicleModeReport.maneuver_start_t: float64[<=1], MGM default nan, empty = not available (the vehicle has no value to report)
+VehicleModeReport.maneuver_time_to_go: float64[<=1], MGM default nan, empty = the library declares no meaning for this default
+YoYo.timeout: float64[<=1], MGM default inf, empty = unbounded (no bound: a time that never runs out, a limit nothing enforces)
+# optional fields for which the library declares no meaning of the default (9):
+EstimatedStateReport.velocity_ned
+FixReport.accuracy
+FixReport.latitude
+FixReport.longitude
+FixReport.measurement_time
+LinkReport.arrival
+PlanStateReport.maneuver_time_to_go
+PlanStateReport.plan_time_to_go
+VehicleModeReport.maneuver_time_to_go
